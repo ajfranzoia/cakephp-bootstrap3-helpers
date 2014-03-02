@@ -7,7 +7,7 @@ Feel free to make any code/documentation contributions.
 
 ## How to use
 
-Usage instructions and extensive examples can be found at http://3form.qtsdev.com
+Usage instructions and extensive examples can be found at http://bs3form.qtsdev.com
 
 ## License
 
