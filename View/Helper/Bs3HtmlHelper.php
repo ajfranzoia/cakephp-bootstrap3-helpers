@@ -5,9 +5,6 @@ App::uses('Hash', 'Utility');
 
 class Bs3HtmlHelper extends HtmlHelper {
 
-
-	protected $_blockOptions = array();
-
 /**
  * Helpers
  *
@@ -17,13 +14,25 @@ class Bs3HtmlHelper extends HtmlHelper {
 		'Html'
 	);
 
+/**
+ * Flag for active block rendering
+ *
+ * @var boolean
+ */
 	protected $_blockRendering = false;
 
 /**
- * Helpers
+ * Current block rendering options
  *
- * @param string
- * @param array
+ * @var array
+ */
+	protected $_blockOptions = array();
+
+/**
+ * Render a panel heading
+ *
+ * @param string $html
+ * @param array $options
  * @return string
  */
 	public function panelHeading($html, $options = array()) {
@@ -33,6 +42,13 @@ class Bs3HtmlHelper extends HtmlHelper {
 		return $this->Html->tag('div', $html, $options);
 	}
 
+/**
+ * Render a panel body
+ *
+ * @param string $html
+ * @param array $options
+ * @return string
+ */
 	public function panelBody($html, $options = array()) {
 		$defaults = array('class' => '');
 		$options = array_merge($defaults, $options);
@@ -40,15 +56,15 @@ class Bs3HtmlHelper extends HtmlHelper {
 		return $this->Html->tag('div', $html, $options);
 	}
 
+/**
+ * Render a panel
+ *
+ * @param string $headingHtml
+ * @param string $bodyHtml
+ * @param array $options
+ * @return string
+ */
 	public function panel($headingHtml, $bodyHtml = null, $options = array()) {
-		// Block support
-		$renderChild = true;
-		if ($this->_blockRendering) {
-			$options = $bodyHtml;
-			$html = $headingHtml;
-			$renderChild = false;
-		}
-
 		$defaults = array(
 			'class' => 'panel-default', 'headingOptions' => array(), 'bodyOptions' => array(),
 			'wrapHeading' => true, 'wrapBody' => true
@@ -56,16 +72,25 @@ class Bs3HtmlHelper extends HtmlHelper {
 		$options = Hash::merge($defaults, $options);
 		$options = $this->addClass($options, 'panel');
 
-		if ($renderChild) {
+		if (!$this->_blockRendering) {
 			$heading = $options['wrapHeading'] ? $this->panelHeading($headingHtml, $options['headingOptions']) : $headingHtml;
 			$body = $options['wrapBody'] ? $this->panelBody($bodyHtml, $options['bodyOptions']) : $bodyHtml;
 			$html = $heading . $body;
+		} else {
+			$html = $headingHtml;
 		}
 
 		unset($options['headingOptions'], $options['bodyOptions'], $options['wrapHeading'], $options['wrapBody']);
 		return $this->Html->tag('div', $html, $options);
 	}
 
+/**
+ * Render an accordion
+ *
+ * @param mixed $items
+ * @param array $options
+ * @return string
+ */
 	public function accordion($items = array(), $options = array()) {
 		$defaults = array(
 			'class' => '', 'id' => str_replace('.', '', uniqid('accordion_', true)),
@@ -85,15 +110,18 @@ class Bs3HtmlHelper extends HtmlHelper {
 		return $this->Html->tag('div', $html, $options);
 	}
 
+/**
+ * Render an accordion item
+ *
+ * @param mixed $titleHtml
+ * @param mixed $bodyHtml
+ * @param array $options
+ * @return string
+ */
 	public function accordionItem($titleHtml, $bodyHtml = null, $options = array()) {
-		// Block support
-		$renderChild = true;
-		if (is_array($titleHtml)) {
-
-		} elseif (is_array($bodyHtml)) {
+		if ($this->_blockRendering) {
 			$options = $bodyHtml;
 			$html = $headingHtml;
-			$renderChild = false;
 		}
 
 		$itemBodyId = str_replace('.', '', uniqid('accordion_body_', true));
@@ -105,7 +133,11 @@ class Bs3HtmlHelper extends HtmlHelper {
 			'class' => 'panel-collapse collapse in', 'id' => $itemBodyId
 		));
 
-		return $this->panel($heading, $body, array('wrapBody' => false));
+		$blockRendering = $this->_blockRendering;
+		$this->_blockRendering = false;
+		$itemHtml = $this->panel($heading, $body, array('wrapBody' => false));
+		$this->_blockRendering = $blockRendering;
+		return $itemHtml;
 	}
 
 	public function dropdown($toggle, $links = array(), $options = array()) {
@@ -164,16 +196,6 @@ class Bs3HtmlHelper extends HtmlHelper {
 		return $this->Html->tag('div', $html, $options);
 	}
 
-/*
-  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Action</a></li>
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another action</a></li>
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
-    <li role="presentation" class="divider"></li>
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
-  </ul>
-  */
-
 /**
  * Handles custom method calls, like findBy<field> for DB models,
  * and custom RPC calls for remote data sources.
@@ -202,8 +224,6 @@ class Bs3HtmlHelper extends HtmlHelper {
 			}
 		}
 	}
-
-
 
 /**
  * Extracts a single option from an options array.
