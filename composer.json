@@ -1,0 +1,8 @@
+{
+	"name": "codaxis/bootstrap3-helpers",
+	"type": "cakephp-plugin",
+	"extra": {
+		"installer-name": "Bs3FormHelper"
+	}
+}
+
