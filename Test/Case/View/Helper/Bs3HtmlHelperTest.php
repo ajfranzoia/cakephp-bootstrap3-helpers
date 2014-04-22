@@ -482,9 +482,8 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 	public function testAccordionBlockRendering() {
 		$this->Html->accordionStart(array('id' => 'my-accordion'));
 			echo $this->Html->accordionItem('Item 1 title', 'Item 1 body', array('accordionId' => 'my-accordion'));
-			//echo $this->Html->accordionItem('Item 2 title', 'Item 2 body', array('accordionId' => 'my-accordion'));
+			echo $this->Html->accordionItem('Item 2 title', 'Item 2 body', array('accordionId' => 'my-accordion'));
 		$result = $this->Html->accordionEnd();
-		//dd($result);
 		$expected = array(
 			'div' => array(
 				'class' => 'panel-group',
@@ -505,7 +504,7 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 						array('div' => array('class' => 'panel-body')), 'Item 1 body', '/div',
 					'/div',
 				'/div',
-				/*array('div' => array('class' => 'panel-default panel')),
+				array('div' => array('class' => 'panel-default panel')),
 					array('div' => array('class' => 'panel-heading')),
 						array('h4' => array('class' => 'panel-title')),
 							array('a' => array(
@@ -519,7 +518,7 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 					array('div' => array('class' => 'panel-collapse collapse in', 'id' => 'preg:/accordion_body_\w+/')),
 						array('div' => array('class' => 'panel-body')), 'Item 2 body', '/div',
 					'/div',
-				'/div',*/
+				'/div',
 			'/div',
 		);
 		$this->assertTags($result, $expected);
