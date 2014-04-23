@@ -126,6 +126,39 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 	}
 
 /**
+ * testIcon method
+ *
+ * @return void
+ */
+	public function testIcon() {
+		$result = $this->Html->icon('fa-home');
+		$expected = array(
+			'i' => array('class' => 'fa fa-home'),
+		);
+		$this->assertTags($result, $expected);
+
+		$result = $this->Html->icon('glyphicon-star');
+		$expected = array(
+			'i' => array('class' => 'glyphicon glyphicon-star'),
+		);
+		$this->assertTags($result, $expected);
+
+		Configure::write('Bs3Html.iconVendor', 'font-awesome');
+		$result = $this->Html->icon('globe');
+		$expected = array(
+			'i' => array('class' => 'fa fa-globe'),
+		);
+		$this->assertTags($result, $expected);
+
+		Configure::write('Bs3Html.iconVendor', 'glyphicon');
+		$result = $this->Html->icon('leaf');
+		$expected = array(
+			'i' => array('class' => 'glyphicon glyphicon-leaf'),
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
  * testLink method
  *
  * @return void

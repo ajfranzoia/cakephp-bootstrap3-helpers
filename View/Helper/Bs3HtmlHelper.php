@@ -6,15 +6,6 @@ App::uses('Hash', 'Utility');
 class Bs3HtmlHelper extends HtmlHelper {
 
 /**
- * Helpers
- *
- * @var array
- */
-	public $helpers = array(
-		'Html'
-	);
-
-/**
  * Flag for active block rendering
  *
  * @var boolean
@@ -35,11 +26,38 @@ class Bs3HtmlHelper extends HtmlHelper {
  * @param array $options
  * @return string
  */
+	public function icon($class, $options = array()) {
+		$defaults = array();
+		$options = array_merge($defaults, $options);
+
+		$vendorClass = null;
+		if (substr($class, 0, 3) == 'fa-') {
+			$vendorClass = 'fa';
+		} elseif (substr($class, 0, 10) == 'glyphicon-') {
+			$vendorClass = 'glyphicon';
+		}
+
+		if (!$vendorClass && $vendor = Configure::read('Bs3Html.iconVendor')) {
+			$vendorClass = $vendor == 'font-awesome' ? 'fa' : 'glyphicon';
+			$class = $vendorClass . '-' . $class;
+		}
+
+		$options = $this->addClass($options, $vendorClass . ' ' . $class);
+		return $this->tag('i', '', $options);
+	}
+
+/**
+ * Render a panel heading
+ *
+ * @param string $html
+ * @param array $options
+ * @return string
+ */
 	public function panelHeading($html, $options = array()) {
 		$defaults = array('class' => '');
 		$options = array_merge($defaults, $options);
 		$options = $this->addClass($options, 'panel-heading');
-		return $this->Html->tag('div', $html, $options);
+		return $this->tag('div', $html, $options);
 	}
 
 /**
@@ -53,7 +71,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 		$defaults = array('class' => '');
 		$options = array_merge($defaults, $options);
 		$options = $this->addClass($options, 'panel-body');
-		return $this->Html->tag('div', $html, $options);
+		return $this->tag('div', $html, $options);
 	}
 
 /**
@@ -69,6 +87,9 @@ class Bs3HtmlHelper extends HtmlHelper {
 			'class' => 'panel-default', 'headingOptions' => array(), 'bodyOptions' => array(),
 			'wrapHeading' => true, 'wrapBody' => true
 		);
+		if ($this->_blockRendering) {
+			$options = $bodyHtml;
+		}
 		$options = Hash::merge($defaults, $options);
 		$options = $this->addClass($options, 'panel');
 
@@ -81,7 +102,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 		}
 
 		unset($options['headingOptions'], $options['bodyOptions'], $options['wrapHeading'], $options['wrapBody']);
-		return $this->Html->tag('div', $html, $options);
+		return $this->tag('div', $html, $options);
 	}
 
 /**
@@ -107,7 +128,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 			$html= $items;
 		}
 
-		return $this->Html->tag('div', $html, $options);
+		return $this->tag('div', $html, $options);
 	}
 
 /**
@@ -119,17 +140,17 @@ class Bs3HtmlHelper extends HtmlHelper {
  * @return string
  */
 	public function accordionItem($titleHtml, $bodyHtml = null, $options = array()) {
-		if ($this->_blockRendering) {
-			$options = $bodyHtml;
-			$html = $headingHtml;
-		}
+		//if ($this->_blockRendering) {
+		//	$options = $bodyHtml;
+		//	$html = $titleHtml;
+		//}
 
 		$itemBodyId = str_replace('.', '', uniqid('accordion_body_', true));
-		$titleLink = $this->Html->link($titleHtml, '#' . $itemBodyId, array(
+		$titleLink = $this->link($titleHtml, '#' . $itemBodyId, array(
 			'data-toggle' => 'collapse', 'data-parent' => '#' . $options['accordionId']
 		));
-		$heading = $this->Html->tag('h4', $titleLink, array('class' => 'panel-title'));
-		$body = $this->Html->tag('div', $this->panelBody($bodyHtml), array(
+		$heading = $this->tag('h4', $titleLink, array('class' => 'panel-title'));
+		$body = $this->tag('div', $this->panelBody($bodyHtml), array(
 			'class' => 'panel-collapse collapse in', 'id' => $itemBodyId
 		));
 
@@ -166,7 +187,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 							if ($divider === true) {
 								$liOptions['class'] = 'divider';
 							} else {
-								${$divider} = $this->Html->tag('li', '', array('class' => 'divider'));
+								${$divider} = $this->tag('li', '', array('class' => 'divider'));
 							}
 						}
 						$itemHtml = $this->_extractOption('html', $itemOptions, '');
@@ -174,7 +195,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 						$itemHtml = $itemOptions;
 					}
 
-					$itemsHtml .= $before . $this->Html->tag('li', $itemHtml, $liOptions) . $after;
+					$itemsHtml .= $before . $this->tag('li', $itemHtml, $liOptions) . $after;
 				}
 			} else {
 				$itemsHtml= $links;
@@ -187,13 +208,13 @@ class Bs3HtmlHelper extends HtmlHelper {
 			'data-toggle' => 'dropdown'
 		);
 		$toggleOptions = $this->addClass($toggleOptions, 'sr-only dropdown-toggle');
-		$toggleHtml = $this->Html->tag('button', $toggle . ' <span class="caret"></span>', $toggleOptions);
+		$toggleHtml = $this->tag('button', $toggle . ' <span class="caret"></span>', $toggleOptions);
 		unset($options['toggleClass']);
-		$itemsHtml = $this->Html->tag('ul', $itemsHtml, array('class'=>'dropdown-menu'));
+		$itemsHtml = $this->tag('ul', $itemsHtml, array('class'=>'dropdown-menu'));
 
 		$html = $toggleHtml . $itemsHtml;
 
-		return $this->Html->tag('div', $html, $options);
+		return $this->tag('div', $html, $options);
 	}
 
 /**
