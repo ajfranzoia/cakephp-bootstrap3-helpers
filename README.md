@@ -5,11 +5,11 @@ Yet another Cake 2.x form helper, but with minimal coding and highly configurabl
 
 Feel free to make any code/documentation contributions.
 
-You can contact us vía **contact** *at* **qtsdev** *dot* **com**
+You can contact us vía **contact** *at* **codaxis** *dot* **com**
 
 ## How to use
 
-Usage instructions and extensive examples can be found at http://bs3form.qtsdev.com
+Usage instructions and extensive examples can be found at http://bs3form.codaxis.com
 
 ## License
 
