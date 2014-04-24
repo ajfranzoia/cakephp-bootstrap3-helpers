@@ -1,8 +1,20 @@
 {
 	"name": "codaxis/bootstrap3-helpers",
+	"description": "CakePHP highly configurable helpers for Bootstrap 3 framework.",
 	"type": "cakephp-plugin",
+	"keywords": ["cakephp","bootstrap","helper"],
+	"homepage": "https://github.com/Codaxis/bootstrap3-helpers",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "augusto-cdxs",
+			"email": "augusto@codaxis.com"
+		}
+	],
+	"require": {
+		"php": ">=5.3.0"
+	},
 	"extra": {
-		"installer-name": "Bs3FormHelper"
+		"installer-name": "Bs3Helpers"
 	}
 }
-
