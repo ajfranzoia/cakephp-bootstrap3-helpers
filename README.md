@@ -3,9 +3,9 @@ CakePHP Bootstrap 3 FormHelper
 
 Yet another Cake 2.x form helper, but with minimal coding and highly configurable.
 
-Feel free to make any code/documentation contributions.
+Compatible with Cake 2.4.7+
 
-You can contact us vía **contact** *at* **codaxis** *dot* **com**
+Feel free to make any code/docs contributions or post any issues.
 
 ## How to use
 
