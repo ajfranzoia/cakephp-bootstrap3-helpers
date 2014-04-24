@@ -14,7 +14,7 @@
 /**
  * AllTestsTest class
  *
- * This test group will run ParsleyFormHelperTest and ParsleyFormTraitTest only 
+ * This test group will run ParsleyFormHelperTest and ParsleyFormTraitTest only
  * if version greather than 5.4.
  *
  * @package       ParsleyHelper.Test.Case
