@@ -6,16 +6,6 @@ App::uses('Hash', 'Utility');
 class Bs3FormHelper extends FormHelper {
 
 /**
- * Helpers
- *
- * @var array
- */
-	public $helpers = array(
-		'Bs3Html'
-	);
-
-
-/**
  * Available options.
  *
  * @var array
@@ -146,6 +136,17 @@ class Bs3FormHelper extends FormHelper {
 	protected $_formStyle = null;
 
 	protected $_hasFeedback = false;
+
+/**
+ * Default Constructor
+ *
+ * @param View $View The View this helper is being attached to.
+ * @param array $settings Configuration settings for the helper.
+ */
+	public function __construct(View $View, $settings = array()) {
+		parent::__construct($View, $settings);
+		$this->Html = $this->_View->loadHelper('Bs3Helpers.Bs3Html');
+	}
 
 /**
  * Redefine el metodo padre para aceptar configuraciones globales de forms, definidas en
