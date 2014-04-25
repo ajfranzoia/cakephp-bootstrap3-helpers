@@ -11,7 +11,7 @@ class Bs3FormHelper extends FormHelper {
  * @var array
  */
 	public $helpers = array(
-		'Bs3Html'
+		'Html' => array('className' => 'Bs3Html')
 	);
 
 
