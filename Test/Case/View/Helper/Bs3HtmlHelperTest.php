@@ -143,14 +143,16 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 		);
 		$this->assertTags($result, $expected);
 
-		Configure::write('Bs3Html.iconVendor', 'font-awesome');
+		Configure::write('Bs3.Html.defaultIconVendorPrefix', 'fa');
+		$this->Html = new Bs3HtmlHelper($this->View);
 		$result = $this->Html->icon('globe');
 		$expected = array(
 			'i' => array('class' => 'fa fa-globe'),
 		);
 		$this->assertTags($result, $expected);
 
-		Configure::write('Bs3Html.iconVendor', 'glyphicon');
+		Configure::write('Bs3.Html.defaultIconVendorPrefix', 'glyphicon');
+		$this->Html = new Bs3HtmlHelper($this->View);
 		$result = $this->Html->icon('leaf');
 		$expected = array(
 			'i' => array('class' => 'glyphicon glyphicon-leaf'),

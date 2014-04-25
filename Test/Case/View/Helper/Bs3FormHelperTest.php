@@ -192,7 +192,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->View = new View($this->Controller);
 
 		$this->Form = new Bs3FormHelper($this->View);
-		$this->Form->Html = new HtmlHelper($this->View);
 		$this->Form->request = new CakeRequest('contacts/add', false);
 		$this->Form->request->here = '/contacts/add';
 		$this->Form->request['action'] = 'add';
@@ -200,6 +199,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->Form->request->base = '';
 
 		ClassRegistry::addObject('Contact', new Contact());
+		$this->Contact = ClassRegistry::init('Contact');
 
 		$this->oldSalt = Configure::read('Security.salt');
 
@@ -257,7 +257,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 			'/div',
 		);
 		$this->assertTags($result, $expected);
-		$this->assertTags($this->Form->getFormStyle(), 'default');
 
 		$result = $this->Form->create('Contact', array('formStyle' => 'horizontal'));
 		$expected = array(
@@ -270,7 +269,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 			'/div',
 		);
 		$this->assertTags($result, $expected);
-		$this->assertTags($this->Form->getFormStyle(), 'horizontal');
 
 		$result = $this->Form->create('Contact', array('formStyle' => 'inline'));
 		$expected = array(
@@ -283,21 +281,31 @@ class Bs3FormHelperTest extends CakeTestCase {
 			'/div',
 		);
 		$this->assertTags($result, $expected);
-		$this->assertTags($this->Form->getFormStyle(), 'inline');
+	}
 
-		Configure::write('Bs3Form.inputDefaults.my-style', array());
-		$result = $this->Form->create('Contact', array('formStyle' => 'my-style'));
-		$expected = array(
-			'form' => array('action' => '/contacts/add', 'role' => 'form', 'id' => 'ContactAddForm', 'method' => 'post', 'accept-charset' => $encoding),
-			'div' => array('style' => 'display:none;'),
-			array('input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST')),
-			array('input' => array(
-				'type' => 'hidden', 'name' => 'data[_Token][key]', 'value' => 'testKey', 'id'
-			)),
-			'/div',
-		);
-		$this->assertTags($result, $expected);
-		$this->assertTags($this->Form->getFormStyle(), 'my-style');
+/**
+ * testFormCreate method
+ *
+ * @return void
+ */
+	public function testDetectFormStyle() {
+		$result = $this->Form->create('Contact');
+		$this->assertEqual($this->Form->getFormStyle(), 'default');
+
+		$result = $this->Form->create('Contact', array('formStyle' => 'horizontal'));
+		$this->assertEqual($this->Form->getFormStyle(), 'horizontal');
+
+		$result = $this->Form->create('Contact', array('class' => 'my-class form-horizontal my-other-class'));
+		$this->assertEqual($this->Form->getFormStyle(), 'horizontal');
+
+		$result = $this->Form->create('Contact', array('formStyle' => 'inline'));
+		$this->assertEqual($this->Form->getFormStyle(), 'inline');
+
+		$result = $this->Form->create('Contact', array('class' => 'my-class form-inline my-other-class'));
+		$this->assertEqual($this->Form->getFormStyle(), 'inline');
+
+		//$result = $this->Form->create('Contact', array('formStyle' => 'my-style'));
+		//$this->assertEqual($this->Form->getFormStyle(), 'my-style');
 	}
 
 /**
@@ -306,6 +314,7 @@ class Bs3FormHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testFormEnd() {
+		$this->skipIf(true);
 		/*$this->Form->request['_Token'] = array('key' => 'testKey');
 		$encoding = strtolower(Configure::read('App.encoding'));
 		$this->Form->create('Contact');
@@ -476,6 +485,96 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
+ * testInputWithForm method
+ *
+ * @return void
+ */
+	public function testInputWithError() {
+		$this->Contact->invalidate('name', 'This input has error!');
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name');
+		$expected = array(
+			'div' => array('class' => 'form-group has-error error'),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('input' => array(
+					'name' => 'data[Contact][name]', 'class' => 'form-control form-error', 'maxlength' => '255',
+					'type' => 'text', 'id' => 'ContactName',
+				)),
+				array('div' => array('class' => 'help-block')),
+					'This input has error!',
+				'/div',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
+ * testInputWithForm method
+ *
+ * @return void
+ */
+	public function testErrorRendering() {
+		$this->Contact->invalidate('name', 'This input has error #1!');
+		$this->Contact->invalidate('name', 'This input has error #2!');
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name');
+		$expected = array(
+			'div' => array('class' => 'form-group has-error error'),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('input' => array(
+					'name' => 'data[Contact][name]', 'class' => 'form-control form-error', 'maxlength' => '255',
+					'type' => 'text', 'id' => 'ContactName',
+				)),
+				array('div' => array('class' => 'help-block')),
+					'<ul',
+						'<li',
+							'This input has error #1!',
+						'/li',
+						'<li',
+							'This input has error #2!',
+						'/li',
+					'/ul',
+				'/div',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
+ * testInputWithForm method
+ *
+ * @return void
+ */
+	public function testErrorAlwaysAsList() {
+		$this->Contact->invalidate('name', 'This input has error!');
+		$this->Form->create('Contact', array('inputDefaults' => array('errorsAlwaysAsList' => true)));
+		$result = $this->Form->input('name');
+		$expected = array(
+			'div' => array('class' => 'form-group has-error error'),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('input' => array(
+					'name' => 'data[Contact][name]', 'class' => 'form-control form-error', 'maxlength' => '255',
+					'type' => 'text', 'id' => 'ContactName',
+				)),
+				array('div' => array('class' => 'help-block')),
+					'<ul',
+						'<li',
+							'This input has error!',
+						'/li',
+					'/ul',
+				'/div',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
  * testHidden method
  *
  * @return void
@@ -553,42 +652,48 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testRadio method
+ * testInlineCheckboxAndRadio method
  *
  * @return void
  */
-	public function testRadio() {
-		$this->Form->create('Contact');
-		$result = $this->Form->input('active', array('label' => false, 'checkboxLabel' => 'My checkbox label'));
+	public function testInlineCheckboxAndRadio() {
+
+		$this->Form->create('Contact', array('formStyle' => 'horizontal'));
+		$result = $this->Form->input('favorites', array('label' => 'Choose your favorites', 'multiple' => 'checkbox', 'inline' => true, 'options' => array('ice-cream' => 'Ice cream', 'chocolate' => 'Chocolate')));
+		//dd($result);
 		$expected = array(
 			array('div' => array('class' => 'form-group')),
-				array('div' => array('class' => 'checkbox')),
-					'<label',
-						array('input' => array('type' => 'hidden', 'name' => 'data[Contact][active]', 'id' => 'ContactActive_', 'value' => 0)),
-						array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][active]', 'value' => 1, 'id' => 'ContactActive')),
-						' My checkbox label',
+				array('label' => array('for' => 'ContactFavorites', 'class' => 'col-sm-2 control-label')),
+					'Choose your favorites',
+				'/label',
+				array('div' => array('class' => 'col-sm-10')),
+					array('input' => array('type' => 'hidden', 'name' => 'data[Contact][favorites]', 'value' => '', 'id' => 'ContactFavorites')),
+					array('label' => array('for' => 'ContactFavoritesIceCream', 'class' => 'checkbox-inline')),
+						array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][favorites][]', 'value' => 'ice-cream', 'id' => 'ContactFavoritesIceCream')),
+						' Ice cream',
+					'/label',
+					array('label' => array('for' => 'ContactFavoritesChocolate', 'class' => 'checkbox-inline')),
+						array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][favorites][]', 'value' => 'chocolate', 'id' => 'ContactFavoritesChocolate')),
+						' Chocolate',
 					'/label',
 				'/div',
 			'/div'
 		);
 		$this->assertTags($result, $expected);
 
-		$this->Form->create('Contact', array('formStyle' => 'horizontal'));
-		$result = $this->Form->input('active', array('label' => 'Horizontal label', 'checkboxLabel' => 'My checkbox label'));
+		$this->Form->create('Contact');
+		$result = $this->Form->input('gender', array('label' => false, 'type' => 'radio', 'inline' => true, 'options' => array('F' => 'Female', 'M' => 'Male')));
 		$expected = array(
 			array('div' => array('class' => 'form-group')),
-				array('label' => array('for' => 'ContactActive', 'class' => 'col-sm-2 control-label')),
-					'Horizontal label',
+				array('input' => array('type' => 'hidden', 'name' => 'data[Contact][gender]', 'id' => 'ContactGender_', 'value' => '')),
+				array('label' => array('for' => 'ContactGenderF', 'class' => 'radio-inline')),
+					array('input' => array('type' => 'radio', 'name' => 'data[Contact][gender]', 'id' => 'ContactGenderF', 'value' => 'F')),
+					' Female',
 				'/label',
-				array('div' => array('class' => 'col-sm-10')),
-					array('div' => array('class' => 'checkbox')),
-						'<label',
-							array('input' => array('type' => 'hidden', 'name' => 'data[Contact][active]', 'id' => 'ContactActive_', 'value' => 0)),
-							array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][active]', 'value' => 1, 'id' => 'ContactActive')),
-							' My checkbox label',
-						'/label',
-					'/div',
-				'/div',
+				array('label' => array('for' => 'ContactGenderM', 'class' => 'radio-inline')),
+					array('input' => array('type' => 'radio', 'name' => 'data[Contact][gender]', 'id' => 'ContactGenderM', 'value' => 'M')),
+					' Male',
+				'/label',
 			'/div'
 		);
 		$this->assertTags($result, $expected);
@@ -664,6 +769,107 @@ class Bs3FormHelperTest extends CakeTestCase {
 				)),
 				array('i' => array('class' => 'fa fa-check form-control-feedback')),
 				'/i',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
+ * testFeedback method
+ *
+ * @return void
+ */
+	public function testInputGroup() {
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name', array('inputGroup' => array('prepend' => 'fa-check')));
+		$expected = array(
+			array('div' => array('class' => 'form-group')),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('div' => array('class' => 'input-group')),
+					array('span' => array('class' => 'input-group-addon')),
+						array('i' => array('class' => 'fa fa-check')),
+						'/i',
+					'/span',
+					array('input' => array(
+						'name' => 'data[Contact][name]', 'class' => 'form-control', 'maxlength' => '255',
+						'type' => 'text', 'id' => 'ContactName',
+					)),
+				'/div',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name', array('inputGroup' => array('append' => 'fa-bars')));
+		$expected = array(
+			array('div' => array('class' => 'form-group')),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('div' => array('class' => 'input-group')),
+					array('input' => array(
+						'name' => 'data[Contact][name]', 'class' => 'form-control', 'maxlength' => '255',
+						'type' => 'text', 'id' => 'ContactName',
+					)),
+					array('span' => array('class' => 'input-group-addon')),
+						array('i' => array('class' => 'fa fa-bars')),
+						'/i',
+					'/span',
+				'/div',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name', array('inputGroup' => array('append' => '<span>Enter only numbers</span>')));
+		$expected = array(
+			array('div' => array('class' => 'form-group')),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('div' => array('class' => 'input-group')),
+					array('input' => array(
+						'name' => 'data[Contact][name]', 'class' => 'form-control', 'maxlength' => '255',
+						'type' => 'text', 'id' => 'ContactName',
+					)),
+					array('span' => array('class' => 'input-group-addon')),
+						'<span',
+							'Enter only numbers',
+						'/span',
+					'/span',
+				'/div',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name', array('inputGroup' => array(
+			'size' => 'lg',
+			'prepend' => 'fa-check',
+			'append' => '<span>Enter only numbers</span>'
+		)));
+		$expected = array(
+			array('div' => array('class' => 'form-group')),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('div' => array('class' => 'input-group input-group-lg')),
+					array('span' => array('class' => 'input-group-addon')),
+						array('i' => array('class' => 'fa fa-check')),
+						'/i',
+					'/span',
+					array('input' => array(
+						'name' => 'data[Contact][name]', 'class' => 'form-control', 'maxlength' => '255',
+						'type' => 'text', 'id' => 'ContactName',
+					)),
+					array('span' => array('class' => 'input-group-addon')),
+						'<span',
+							'Enter only numbers',
+						'/span',
+					'/span',
+				'/div',
 			'/div',
 		);
 		$this->assertTags($result, $expected);
