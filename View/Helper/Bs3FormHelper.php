@@ -215,7 +215,7 @@ class Bs3FormHelper extends FormHelper {
  * @return string a closing FORM tag optional submit button.
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#closing-the-form
  */
-	public function end($options = null) {
+	public function end($options = null, $secureAttributes = array()) {
 		$wrap = false;
 		if ($this->_formStyle == 'horizontal' && !isset($options['div'])) {
 			if (is_string($options)) {
