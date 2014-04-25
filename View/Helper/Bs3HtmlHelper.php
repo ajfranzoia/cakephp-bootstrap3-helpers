@@ -17,7 +17,29 @@ class Bs3HtmlHelper extends HtmlHelper {
  *
  * @var array
  */
+	protected $_defaults = array(
+		'iconVendorPrefixes' => array('fa', 'glyphicon'),
+		'defaultIconVendorPrefix' => null,
+	);
+
+/**
+ * Current block rendering options
+ *
+ * @var array
+ */
 	protected $_blockOptions = array();
+
+/**
+ * Default Constructor
+ *
+ * @param View $View The View this helper is being attached to.
+ * @param array $settings Configuration settings for the helper.
+ */
+	public function __construct(View $View, $settings = array()) {
+		parent::__construct($View, $settings);
+		$userConfig = Configure::check('Bs3.Html') ? Configure::read('Bs3.Html') : array();
+		$this->_config = Hash::merge($this->_defaults, $userConfig);
+	}
 
 /**
  * Render a panel heading
@@ -30,20 +52,32 @@ class Bs3HtmlHelper extends HtmlHelper {
 		$defaults = array();
 		$options = array_merge($defaults, $options);
 
-		$vendorClass = null;
-		if (substr($class, 0, 3) == 'fa-') {
-			$vendorClass = 'fa';
-		} elseif (substr($class, 0, 10) == 'glyphicon-') {
-			$vendorClass = 'glyphicon';
+		$iconVendorPrefix = $this->getIconVendor($class);
+		if ($iconVendorPrefix) {
+			$class = $iconVendorPrefix . ' ' . $class;
+		} else {
+			$iconVendorPrefix = $this->_config['defaultIconVendorPrefix'];
+			if ($iconVendorPrefix) {
+				$class = $iconVendorPrefix . ' ' . $iconVendorPrefix . '-' . $class;
+			}
 		}
 
-		if (!$vendorClass && $vendor = Configure::read('Bs3Html.iconVendor')) {
-			$vendorClass = $vendor == 'font-awesome' ? 'fa' : 'glyphicon';
-			$class = $vendorClass . '-' . $class;
-		}
-
-		$options = $this->addClass($options, $vendorClass . ' ' . $class);
+		$options['class'] = $class;
 		return $this->tag('i', '', $options);
+	}
+
+/**
+ * 
+ */
+	public function getIconVendor($class) {
+		foreach ($this->_config['iconVendorPrefixes'] as $iconVendorPrefix) {
+			$regex = sprintf('/^%s-|\s%s-/', $iconVendorPrefix, $iconVendorPrefix);
+			if (preg_match($regex, $class)) {
+				return $iconVendorPrefix;
+			}
+		}
+
+		return null;
 	}
 
 /**
