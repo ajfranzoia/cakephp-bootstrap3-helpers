@@ -52,7 +52,7 @@ class Bs3FormHelper extends FormHelper {
 			'error' => array(
 				'attributes' => array(
 					'externalWrap' => 'div',
-					'class' => 'help-block error-block'
+					'class' => 'help-block'
 				)
 			),
 
@@ -343,17 +343,7 @@ class Bs3FormHelper extends FormHelper {
 		$errorOptions = $this->_extractOption('error', $this->_inputOptions, null);
 		$showError = $this->_extractOption('showError', $this->_customInputOptions);
 		if ($this->_inputType !== 'hidden' && $errorOptions !== false && $showError) {
-
-			$customErrorMessage = $this->_extractOption('errorMessage', $this->_customInputOptions);
-			if (!$customErrorMessage) {
-				$errorHtml = $this->error($this->_fieldName, $errorOptions);
-			} else {
-				$errorHtml = $this->error($this->_fieldName, $errorOptions, array(), (array) $customErrorMessage);
-			}
-
-			if (empty($errorHtml) && $this->_extractOption('renderErrorBlockAlways', $this->_customInputOptions)) {
-
-			}
+			$errorHtml = $this->error($this->_fieldName, $errorOptions);
 		}
 
 		// Help block rendering
@@ -572,8 +562,6 @@ class Bs3FormHelper extends FormHelper {
 
 		if (!empty($options['label'])) {
 			$label = $this->Html->tag('label', $label, $options['label']);
-		} else {
-			$label = null;
 		}
 
 		$divOptions = $this->_divOptions($options);
@@ -586,8 +574,7 @@ class Bs3FormHelper extends FormHelper {
 /**
  * Generates proper input group rendering. Checks for the existence of 'inputGroup' option
  * and determines if it must prepend and/or append , and the group size.
- * If feedback class starts with 'fa-' or 'glyphicon-' automatically adds
- * proper vendor class name ('fa' or 'glyphicon')
+ * If feedback class starts with a registered icon vendor prefix it automatically adds the vendor class
  *
  * @return array
  */
@@ -599,21 +586,21 @@ class Bs3FormHelper extends FormHelper {
 		}
 		unset($this->_customInputOptions['inputGroup']);
 
-		// Check for prepend option. If option stats with 'fa-' or 'glyphicon-',
-		// it will automatically add the 'fa' or 'glyphicon' class
+		// Check for prepend option. If option stats with a registered icon vendor prefix,
+		// it will automatically add vendor class
 		$prepend = $this->_extractOption('prepend', $inputGroupOptions);
 		if ($prepend) {
-			if (substr($prepend, 0, 3) == 'fa-' || substr($prepend, 0, 10) == 'glyphicon-') {
+			if ($prependIcon = $this->Html->getIconVendor($prepend)) {
 				$prepend = $this->Html->icon($prepend);
 			}
 			$prepend = $this->Html->tag('span', $prepend, array('class' => 'input-group-addon'));
 		}
 
-		// Check for append option. If option stats with 'fa-' or 'glyphicon-',
-		// it will automatically add the 'fa' or 'glyphicon' class
+		// Check for append option. If option stats with a registered icon vendor prefix,
+		// it will automatically add the vendor class
 		$append = $this->_extractOption('append', $inputGroupOptions);
 		if ($append) {
-			if (substr($append, 0, 3) == 'fa-' || substr($append, 0, 10) == 'glyphicon-') {
+			if ($appendIcon = $this->Html->getIconVendor($append)) {
 				$append = $this->Html->icon($append);
 			}
 			$append = $this->Html->tag('span', $append, array('class' => 'input-group-addon'));
@@ -632,8 +619,7 @@ class Bs3FormHelper extends FormHelper {
 
 /**
  * Generates proper input feedback rendering if 'feedback' option is set.
- * If feedback class starts with 'fa-' or 'glyphicon-' automatically adds
- * proper vendor class name ('fa' or 'glyphicon')
+ * If feedback class starts with a registered icon vendor prefix it automatically adds the vendor class
  *
  * @param array $options
  * @return array
@@ -656,14 +642,11 @@ class Bs3FormHelper extends FormHelper {
 		}
 
 		$iconClass = null;
-		if (substr($feedback, 0, 3) == 'fa-') {
-			$iconClass = 'fa ' . $feedback;
-		} elseif (substr($feedback, 0, 10) == 'glyphicon-') {
-			$iconClass = 'glyphicon ' . $feedback;
+		if ($feedbackIconVendor = $this->Html->getIconVendor($feedback)) {
+			$iconClass = $feedbackIconVendor . ' ' . $feedback;
 		} else {
 			$iconClass = $feedback;
 		}
-
 		$feedback = $this->Html->tag('i', '', array('style' => $style, 'class' => $iconClass . ' form-control-feedback'));
 
 		// Set feedback html after input
@@ -769,7 +752,6 @@ class Bs3FormHelper extends FormHelper {
 
 /**
  * Overrides parent method to allow:
- * - Setting a custom error message by passing 'customError' => string | array
  * - Enable rendering always a <ul> element even if only one error is present by setting
  *   'errorsAlwaysAsList' => true in global inputDefaults options
  *
@@ -783,18 +765,13 @@ class Bs3FormHelper extends FormHelper {
 			'externalWrap' => true,
 			'class' => 'error-message',
 			'escape' => true,
-			'customError' => false
 		);
 		$options = array_merge($defaults, $options);
 		$this->setEntity($field);
 
-		if ($options['customError'] === false) {
-			$error = $this->tagIsInvalid();
-			if ($error === false) {
-				return null;
-			}
-		} else {
-			$error = $options['customError'];
+		$error = $this->tagIsInvalid();
+		if ($error === false) {
+			return null;
 		}
 
 		if (is_array($text)) {
