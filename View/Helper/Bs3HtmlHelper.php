@@ -6,14 +6,7 @@ App::uses('Hash', 'Utility');
 class Bs3HtmlHelper extends HtmlHelper {
 
 /**
- * Flag for active block rendering
- *
- * @var boolean
- */
-	protected $_blockRendering = false;
-
-/**
- * Current block rendering options
+ * Default configuration.
  *
  * @var array
  */
@@ -21,6 +14,13 @@ class Bs3HtmlHelper extends HtmlHelper {
 		'iconVendorPrefixes' => array('fa', 'glyphicon'),
 		'defaultIconVendorPrefix' => null,
 	);
+
+/**
+ * Flag for active block rendering of components
+ *
+ * @var boolean
+ */
+	protected $_blockRendering = false;
 
 /**
  * Current block rendering options
@@ -67,7 +67,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 	}
 
 /**
- * 
+ * Returns icon vendor from class if found.
  */
 	public function getIconVendor($class) {
 		foreach ($this->_config['iconVendorPrefixes'] as $iconVendorPrefix) {
@@ -174,11 +174,6 @@ class Bs3HtmlHelper extends HtmlHelper {
  * @return string
  */
 	public function accordionItem($titleHtml, $bodyHtml = null, $options = array()) {
-		//if ($this->_blockRendering) {
-		//	$options = $bodyHtml;
-		//	$html = $titleHtml;
-		//}
-
 		$itemBodyId = str_replace('.', '', uniqid('accordion_body_', true));
 		$titleLink = $this->link($titleHtml, '#' . $itemBodyId, array(
 			'data-toggle' => 'collapse', 'data-parent' => '#' . $options['accordionId']

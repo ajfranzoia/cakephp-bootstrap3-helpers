@@ -191,6 +191,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->Controller = new ContactTestController();
 		$this->View = new View($this->Controller);
 
+		CakePlugin::load('Bs3Helpers', array('bootstrap' => true));
 		$this->Form = new Bs3FormHelper($this->View);
 		$this->Form->request = new CakeRequest('contacts/add', false);
 		$this->Form->request->here = '/contacts/add';
@@ -224,6 +225,17 @@ class Bs3FormHelperTest extends CakeTestCase {
 		parent::tearDown();
 		unset($this->Form->Html, $this->Form, $this->Controller, $this->View);
 		Configure::write('Security.salt', $this->oldSalt);
+	}
+
+/**
+ * testFormCreate method
+ *
+ * @return void
+ */
+	public function testListFormStyles() {
+		$result = $this->Form->listFormStyles();
+		$expected = array('horizontal', 'inline');
+		$this->assertEquals($result, $expected);
 	}
 
 /**

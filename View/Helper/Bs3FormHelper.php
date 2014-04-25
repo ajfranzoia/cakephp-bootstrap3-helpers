@@ -6,86 +6,52 @@ App::uses('Hash', 'Utility');
 class Bs3FormHelper extends FormHelper {
 
 /**
- * Available options.
+ * Available options for inputs.
+ *
+ *  - wrap:  HTML4 Strict.
  *
  * @var array
  */
-	protected $_availableCustomOptions = array(
-		'wrap',
-		'externalWrap',
-		'checkboxLabel',
-		'beforeInput',
-		'afterInput',
-		'help',
-		'errorClass',
-		'showError',
-		'errorMessage',
-		'errorsAlwaysAsList',
-		'inputGroup',
-		'feedback',
-		'submitDiv',
+	protected $_inputDefaults = array(
+		'class' => 'form-control',
+		'div' => array(
+			'class' => 'form-group'
+		),
+		'label' => array(
+			'class' => 'control-label'
+		),
+		'error' => array(
+			'attributes' => array(
+				'externalWrap' => 'div',
+				'class' => 'help-block'
+			)
+		),
+		'custom' => array(
+			'externalWrap' => false,
+			'wrap' => false,
+			'beforeInput' => false,
+			'afterInput' => false,
+			'help' => false,
+			'errorClass' => 'has-error',
+			'errorsAlwaysAsList' => false,
+			'feedback' => false,
+			'inputGroup' => false,
+			'checkboxLabel' => false,
+		)
 	);
 
 /**
  * Default options for form.
  *
- * @var array
- */
-	protected $_formDefaults = array(
-		'role' => 'form'
-	);
-
-/**
- * Default options for inputs.
- * Used by default FormHelper class.
+ *  - wrap:  HTML4 Strict.
  *
  * @var array
  */
-	protected $_predefinedInputDefaults = array(
-		'all' => array(
-			'div' => array(
-				'class' => 'form-group'
-			),
-			'class' => 'form-control',
-			'error' => array(
-				'attributes' => array(
-					'externalWrap' => 'div',
-					'class' => 'help-block'
-				)
-			),
-
-			// Default custom options for all inputs
-			'externalWrap' => false,
-			'wrap' => false,
-			'beforeInput' => false,
-			'afterInput' => false,
-			'checkboxLabel' => false,
-			'help' => false,
-			'errorClass' => 'has-error',
-			'showError' => true, // Si mostrar o no error
-			'errorMessage' => false, // Mensaje de error manual
-			'errorsAlwaysAsList' => false,
-			'inputGroup' => false,
-			'feedback' => false,
-			'submitDiv' => false
-		),
-		'default' => array(
-			'label' => array(
-				'class' => 'control-label'
-			),
-		),
-		'horizontal' => array(
-			'label' => array(
-				'class' => 'col-sm-2 control-label'
-			),
-			'wrap' => 'col-sm-10',
-			'submitDiv' => 'col-sm-10 col-sm-offset-2'
-		),
-		'inline' => array(
-			'label' => array(
-				'class' => 'sr-only'
-			),
-		),
+	protected $_formDefaults = array(
+		'role' => 'form',
+		'custom' => array(
+			'submitDiv' => null
+		)
 	);
 
 /**
@@ -158,36 +124,8 @@ class Bs3FormHelper extends FormHelper {
  * @return string An formatted opening FORM tag.
  */
 	public function create($model = null, $options = array()) {
-		// Get form style
-		$options = $this->_detectFormStyle($options);
-
-		// Generate global input defaults
-		$globalInputDefaults = Hash::merge($this->_predefinedInputDefaults, Configure::read('Bs3Form.inputDefaults'));
-		// Generate form style defaults
-		$styleInputDefaults = Hash::merge($globalInputDefaults['all'], $globalInputDefaults[$this->_formStyle]);
-		// Merge with passed inputDefaults if any
-		$passedInputDefaults = $this->_extractOption('inputDefaults', $options, array());
-		// Set helper inputDefaults
-		$inputDefaults = Hash::merge($styleInputDefaults, $passedInputDefaults);
-
-		// Process custom input defaults and remove keys from passed options
-		$this->_customInputDefaults = array();
-		foreach ($this->_availableCustomOptions as $name) {
-			if (isset($inputDefaults[$name])) {
-				$this->_customInputDefaults[$name] = $inputDefaults[$name];
-			}
-			unset($inputDefaults[$name]);
-		}
-		$options['inputDefaults'] = $inputDefaults;
-		$this->_baseInputDefaults = $inputDefaults;
-
-		// Process form defaults
-		$formDefaults = Hash::merge($this->_formDefaults, Configure::read('Bs3Form.formDefaults'));
-		$options = Hash::merge($formDefaults, $options);
-		$this->_customFormOptions = $options;
-
-		$out = parent::create($model, $options);
-		return $out;
+		$options = $this->_processConfig($options);		
+		return parent::create($model, $options);
 	}
 
 /**
@@ -337,8 +275,7 @@ class Bs3FormHelper extends FormHelper {
 		// Error rendering, overwrites parent rendering
 		$errorHtml = null;
 		$errorOptions = $this->_extractOption('error', $this->_inputOptions, null);
-		$showError = $this->_extractOption('showError', $this->_customInputOptions);
-		if ($this->_inputType !== 'hidden' && $errorOptions !== false && $showError) {
+		if ($this->_inputType !== 'hidden' && $errorOptions !== false) {
 			$errorHtml = $this->error($this->_fieldName, $errorOptions);
 		}
 
@@ -383,7 +320,7 @@ class Bs3FormHelper extends FormHelper {
  */
 	protected function _divOptions($options) {
 		$divOptions = parent::_divOptions($options);
-		if ($this->tagIsInvalid() !== false || $this->_customInputOptions['errorMessage']) {
+		if ($this->tagIsInvalid() !== false) {
 			$divOptions = $this->addClass($divOptions, $this->_customInputOptions['errorClass']);
 		}
 		if ($this->_hasFeedback) {
@@ -713,40 +650,6 @@ class Bs3FormHelper extends FormHelper {
 	}
 
 /**
- * Obtains form style from passed custom 'formStyle' option.
- * Style can also be detected by the the 'class' option when it is horizontal or inline.
- * Sets $this->_formStyle property.
- *
- * @param array $options
- * @return array
- */
-	protected function _detectFormStyle($options) {
-		$formStyle = $this->_extractOption('formStyle', $options);
-
-		if (in_array($formStyle, array('horizontal', 'inline'))) {
-			$options['class'] = 'form-' . $formStyle;
-		}
-
-		// If no 'formStyle' option is found, try to detect it by inspecting 'class' option
-		if (empty($formStyle)) {
-			if (isset($options['class'])) {
-				if (strpos($options['class'], 'form-horizontal') !== false) {
-					$formStyle = 'horizontal';
-				}
-				elseif (strpos($options['class'], 'form-inline') !== false) {
-					$formStyle = 'inline';
-				}
-			} else {
-				$formStyle = 'default';
-			}
-		}
-
-		$this->_formStyle = $formStyle;
-		unset($options['formStyle']);
-		return $options;
-	}
-
-/**
  * Overrides parent method to allow:
  * - Enable rendering always a <ul> element even if only one error is present by setting
  *   'errorsAlwaysAsList' => true in global inputDefaults options
@@ -837,12 +740,86 @@ class Bs3FormHelper extends FormHelper {
 	}
 
 /**
+ * Returns available form styles configured via 'Bs3.Form.styles'.
+ *
+ * @return array
+ */
+	public function listFormStyles() {
+		return array_keys(Configure::read('Bs3.Form.styles'));
+	}
+
+/**
  * Returns current form style set.
  *
  * @return string
  */
 	public function getFormStyle() {
 		return $this->_formStyle;
+	}
+
+	protected function _processConfig($options) {
+		// Get form style
+		$options = $this->_detectFormStyle($options);
+
+		// Generate global input defaults
+		$globalInputDefaults = Hash::merge($this->_predefinedInputDefaults, Configure::read('Bs3Form.inputDefaults'));
+		// Generate form style defaults
+		$styleInputDefaults = Hash::merge($globalInputDefaults['all'], $globalInputDefaults[$this->_formStyle]);
+		// Merge with passed inputDefaults if any
+		$passedInputDefaults = $this->_extractOption('inputDefaults', $options, array());
+		// Set helper inputDefaults
+		$inputDefaults = Hash::merge($styleInputDefaults, $passedInputDefaults);
+
+		// Process custom input defaults and remove keys from passed options
+		$this->_customInputDefaults = array();
+		foreach ($this->_availableCustomOptions as $name) {
+			if (isset($inputDefaults[$name])) {
+				$this->_customInputDefaults[$name] = $inputDefaults[$name];
+			}
+			unset($inputDefaults[$name]);
+		}
+		$options['inputDefaults'] = $inputDefaults;
+		$this->_baseInputDefaults = $inputDefaults;
+
+		// Process form defaults
+		$formDefaults = Hash::merge($this->_formDefaults, Configure::read('Bs3Form.formDefaults'));
+		$options = Hash::merge($formDefaults, $options);
+		$this->_customFormOptions = $options;
+
+		return $options;
+	}
+
+/**
+ * Obtains form style from passed custom 'formStyle' option.
+ * Style can also be detected by the the 'class' option when it is horizontal or inline.
+ * Sets $this->_formStyle property.
+ *
+ * @param array $options
+ * @return array
+ */
+	protected function _detectFormStyle($options) {
+		$this->_formStyle = $this->_extractOption('formStyle', $options);
+
+		if (!$this->_formStyle) {
+			$class = $this->_extractOption('class', $options);
+			if (!$class) {
+				return $options;
+			}
+
+			$registeredStyles = $this->listFormStyles();
+			foreach ($registeredStyles as $style) {
+				$regex = sprintf('/^%1$s-|\s%1$s-/', $style);
+				if (preg_match($regex, $class)) {
+					$this->_formStyle = $style;
+					break;
+				}
+			}
+		} else {
+			unset($options['formStyle']);
+			$options = $this->addClass($options, 'form-' . $formStyle);
+		}
+
+		return $options;
 	}
 }
 
