@@ -23,8 +23,6 @@ class Bs3FormHelper extends FormHelper {
 		'errorsAlwaysAsList',
 		'inputGroup',
 		'feedback',
-		'renderErrorBlockAlways',
-		'renderHelpBlockAlways',
 		'submitDiv',
 	);
 
@@ -69,8 +67,6 @@ class Bs3FormHelper extends FormHelper {
 			'errorsAlwaysAsList' => false,
 			'inputGroup' => false,
 			'feedback' => false,
-			'renderErrorBlockAlways' => false,
-			'renderHelpBlockAlways' => false,
 			'submitDiv' => false
 		),
 		'default' => array(
@@ -349,7 +345,7 @@ class Bs3FormHelper extends FormHelper {
 		// Help block rendering
 		$help = $this->_extractOption('help', $this->_customInputOptions, '');
 		$helpHtml = null;
-		if ($help || $this->_extractOption('renderHelpBlockAlways', $this->_customInputOptions)) {
+		if ($help) {
 			$helpHtml = $this->Html->tag('div', $help, array('class' => 'help-block'));
 		}
 
