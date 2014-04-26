@@ -740,12 +740,10 @@ class Bs3FormHelper extends FormHelper {
 				elseif (strpos($options['class'], 'form-inline') !== false) {
 					$formStyle = 'inline';
 				}
-			} else {
-				$formStyle = 'default';
 			}
 		}
 
-		$this->_formStyle = $formStyle;
+		$this->_formStyle = empty($formStyle) ? 'default' : $formStyle;
 		unset($options['formStyle']);
 		return $options;
 	}
