@@ -232,6 +232,113 @@ class Bs3FormHelperTest extends CakeTestCase {
  *
  * @return void
  */
+	public function testConfiguration() {
+		// Test default options
+		$this->Form->create('Contact', array());
+		$result = $this->Form->formOptions;
+		$expected = array(
+			'role' => 'form',
+			'custom' => array(
+				'submitDiv' => null
+			)
+		);
+		$this->assertEquals($result, $expected);
+
+		$result = $this->Form->inputOptions;
+		$expected = array(
+			'class' => 'form-control',
+			'div' => array(
+				'class' => 'form-group'
+			),
+			'label' => array(
+				'class' => 'control-label'
+			),
+			'error' => array(
+				'attributes' => array(
+					'externalWrap' => 'div',
+					'class' => 'help-block'
+				)
+			),
+			'custom' => array(
+				'externalWrap' => false,
+				'wrap' => false,
+				'beforeInput' => false,
+				'afterInput' => false,
+				'help' => false,
+				'errorClass' => 'has-error',
+				'errorsAlwaysAsList' => false,
+				'feedback' => false,
+				'inputGroup' => false,
+				'checkboxLabel' => false,
+			)
+		);
+		$this->assertEquals($result, $expected);
+
+		// Test configured options
+		Configure::write('Bs3.Form', array(
+			'formDefaults' => array(
+				'class' => 'my-default-class',
+				'data-attribute' => 'my-value',
+			),
+			'inputDefaults' => array(
+				'class' => 'my-control-class',
+				'div' => array(
+					'class' => 'my-form-group'
+				),
+				'custom' => array(
+					'wrap' => 'col-sm-10',
+				)
+			),
+		));
+		$this->Form->create('Contact', array());
+
+		$result = $this->Form->formOptions;
+		$expected = array(
+			'role' => 'form',
+			'custom' => array(
+				'submitDiv' => null
+			),
+			'class' => 'my-default-class',
+			'data-attribute' => 'my-value'
+		);
+		$this->assertEquals($result, $expected);
+
+		$result = $this->Form->inputOptions;
+		$expected = array(
+			'class' => 'my-control-class',
+			'div' => array(
+				'class' => 'my-form-group'
+			),
+			'label' => array(
+				'class' => 'control-label'
+			),
+			'error' => array(
+				'attributes' => array(
+					'externalWrap' => 'div',
+					'class' => 'help-block'
+				)
+			),
+			'custom' => array(
+				'externalWrap' => false,
+				'wrap' => 'col-sm-10',
+				'beforeInput' => false,
+				'afterInput' => false,
+				'help' => false,
+				'errorClass' => 'has-error',
+				'errorsAlwaysAsList' => false,
+				'feedback' => false,
+				'inputGroup' => false,
+				'checkboxLabel' => false,
+			)
+		);
+		$this->assertEquals($result, $expected);
+	}
+
+/**
+ * testFormCreate method
+ *
+ * @return void
+ */
 	public function testListFormStyles() {
 		$result = $this->Form->listFormStyles();
 		$expected = array('horizontal', 'inline');
@@ -302,22 +409,22 @@ class Bs3FormHelperTest extends CakeTestCase {
  */
 	public function testDetectFormStyle() {
 		$result = $this->Form->create('Contact');
-		$this->assertEqual($this->Form->getFormStyle(), 'default');
+		$this->assertEqual($this->Form->formStyle, null);
 
 		$result = $this->Form->create('Contact', array('formStyle' => 'horizontal'));
-		$this->assertEqual($this->Form->getFormStyle(), 'horizontal');
+		$this->assertEqual($this->Form->formStyle, 'horizontal');
 
 		$result = $this->Form->create('Contact', array('class' => 'my-class form-horizontal my-other-class'));
-		$this->assertEqual($this->Form->getFormStyle(), 'horizontal');
+		$this->assertEqual($this->Form->formStyle, 'horizontal');
 
 		$result = $this->Form->create('Contact', array('formStyle' => 'inline'));
-		$this->assertEqual($this->Form->getFormStyle(), 'inline');
+		$this->assertEqual($this->Form->formStyle, 'inline');
 
 		$result = $this->Form->create('Contact', array('class' => 'my-class form-inline my-other-class'));
-		$this->assertEqual($this->Form->getFormStyle(), 'inline');
+		$this->assertEqual($this->Form->formStyle, 'inline');
 
 		//$result = $this->Form->create('Contact', array('formStyle' => 'my-style'));
-		//$this->assertEqual($this->Form->getFormStyle(), 'my-style');
+		//$this->assertEqual($this->Form->formStyle, 'my-style');
 	}
 
 /**

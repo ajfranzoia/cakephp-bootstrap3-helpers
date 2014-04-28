@@ -12,7 +12,7 @@ class Bs3FormHelper extends FormHelper {
  *
  * @var array
  */
-	protected $_inputDefaults = array(
+	protected $_myInputDefaults = array(
 		'class' => 'form-control',
 		'div' => array(
 			'class' => 'form-group'
@@ -47,7 +47,7 @@ class Bs3FormHelper extends FormHelper {
  *
  * @var array
  */
-	protected $_formDefaults = array(
+	protected $_myFormDefaults = array(
 		'role' => 'form',
 		'custom' => array(
 			'submitDiv' => null
@@ -76,6 +76,14 @@ class Bs3FormHelper extends FormHelper {
 	protected $_customFormOptions = array();
 
 /**
+ * Handles custom options for current input.
+ *
+ * @var string
+ */
+	public $inputOptions = null;
+	public $formOptions = null;
+
+/**
  * Current input type
  *
  * @var string
@@ -95,7 +103,7 @@ class Bs3FormHelper extends FormHelper {
  *
  * @var boolean
  */
-	protected $_formStyle = null;
+	public $formStyle = null;
 
 	protected $_hasFeedback = false;
 
@@ -124,8 +132,15 @@ class Bs3FormHelper extends FormHelper {
  * @return string An formatted opening FORM tag.
  */
 	public function create($model = null, $options = array()) {
-		$options = $this->_processConfig($options);		
-		return parent::create($model, $options);
+		$this->_processConfig($options);
+
+		$optionsForCreate = Hash::merge(
+			$this->formOptions,
+			array('inputDefaults' => $this->inputOptions)
+		);
+		unset($optionsForCreate['custom'], $optionsForCreate['inputDefaults']['custom']);
+
+		return parent::create($model, $optionsForCreate);
 	}
 
 /**
@@ -152,7 +167,7 @@ class Bs3FormHelper extends FormHelper {
  */
 	public function end($options = null, $secureAttributes = array()) {
 		$wrap = false;
-		if ($this->_formStyle == 'horizontal' && !isset($options['div'])) {
+		if ($this->formStyle == 'horizontal' && !isset($options['div'])) {
 			if (is_string($options)) {
 				$options = array('label' => $options);
 			}
@@ -167,7 +182,7 @@ class Bs3FormHelper extends FormHelper {
 
 		$this->_customInputOptions = null;
 		$this->_inputOptions = null;
-		$this->_formStyle = null;
+		$this->formStyle = null;
 		return $out;
 	}
 
@@ -185,7 +200,7 @@ class Bs3FormHelper extends FormHelper {
 		$options = $this->_initInputOptions($options);
 		$html = parent::input($fieldName, $options);
 
-		if ($this->_formStyle == 'inline') {
+		if ($this->formStyle == 'inline') {
 			// Prevents inline inputs to show no space inbetween
 			$html .= ' ';
 		}
@@ -570,7 +585,7 @@ class Bs3FormHelper extends FormHelper {
 		$style = null;
 		if ($this->_customInputOptions['externalWrap'] || $this->_customInputOptions['wrap']) {
 			$style = 'top:0; right: 15px';
-		} elseif ($this->_formStyle == 'inline') {
+		} elseif ($this->formStyle == 'inline') {
 			$style = 'top:0;';
 		}
 
@@ -748,59 +763,37 @@ class Bs3FormHelper extends FormHelper {
 		return array_keys(Configure::read('Bs3.Form.styles'));
 	}
 
-/**
- * Returns current form style set.
- *
- * @return string
- */
-	public function getFormStyle() {
-		return $this->_formStyle;
-	}
-
 	protected function _processConfig($options) {
 		// Get form style
 		$options = $this->_detectFormStyle($options);
 
-		// Generate global input defaults
-		$globalInputDefaults = Hash::merge($this->_predefinedInputDefaults, Configure::read('Bs3Form.inputDefaults'));
-		// Generate form style defaults
-		$styleInputDefaults = Hash::merge($globalInputDefaults['all'], $globalInputDefaults[$this->_formStyle]);
-		// Merge with passed inputDefaults if any
-		$passedInputDefaults = $this->_extractOption('inputDefaults', $options, array());
-		// Set helper inputDefaults
-		$inputDefaults = Hash::merge($styleInputDefaults, $passedInputDefaults);
+		// Process input configuration
+		$this->inputOptions = Hash::merge(
+			$this->_myInputDefaults,
+			Configure::check('Bs3.Form.inputDefaults') ? Configure::read('Bs3.Form.inputDefaults') : array(),
+			$this->_extractOption('inputDefaults', $options, array())
+		);
 
-		// Process custom input defaults and remove keys from passed options
-		$this->_customInputDefaults = array();
-		foreach ($this->_availableCustomOptions as $name) {
-			if (isset($inputDefaults[$name])) {
-				$this->_customInputDefaults[$name] = $inputDefaults[$name];
-			}
-			unset($inputDefaults[$name]);
-		}
-		$options['inputDefaults'] = $inputDefaults;
-		$this->_baseInputDefaults = $inputDefaults;
-
-		// Process form defaults
-		$formDefaults = Hash::merge($this->_formDefaults, Configure::read('Bs3Form.formDefaults'));
-		$options = Hash::merge($formDefaults, $options);
-		$this->_customFormOptions = $options;
-
-		return $options;
+		// Process form configuration
+		$this->formOptions = Hash::merge(
+			$this->_myFormDefaults,
+			Configure::check('Bs3.Form.formDefaults') ? Configure::read('Bs3.Form.formDefaults') : array(),
+			$options
+		);
 	}
 
 /**
  * Obtains form style from passed custom 'formStyle' option.
  * Style can also be detected by the the 'class' option when it is horizontal or inline.
- * Sets $this->_formStyle property.
+ * Sets $this->formStyle property.
  *
  * @param array $options
  * @return array
  */
 	protected function _detectFormStyle($options) {
-		$this->_formStyle = $this->_extractOption('formStyle', $options);
+		$this->formStyle = $this->_extractOption('formStyle', $options);
 
-		if (!$this->_formStyle) {
+		if (!$this->formStyle) {
 			$class = $this->_extractOption('class', $options);
 			if (!$class) {
 				return $options;
@@ -808,15 +801,15 @@ class Bs3FormHelper extends FormHelper {
 
 			$registeredStyles = $this->listFormStyles();
 			foreach ($registeredStyles as $style) {
-				$regex = sprintf('/^%1$s-|\s%1$s-/', $style);
+				$regex = sprintf('/^form-%1$s|\sform-%1$s/', $style);
 				if (preg_match($regex, $class)) {
-					$this->_formStyle = $style;
+					$this->formStyle = $style;
 					break;
 				}
 			}
 		} else {
 			unset($options['formStyle']);
-			$options = $this->addClass($options, 'form-' . $formStyle);
+			$options = $this->addClass($options, 'form-' . $this->formStyle);
 		}
 
 		return $options;
