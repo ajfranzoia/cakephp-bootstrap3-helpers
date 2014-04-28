@@ -270,6 +270,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 				'feedback' => false,
 				'inputGroup' => false,
 				'checkboxLabel' => false,
+				'inline' => false,
 			)
 		);
 		$this->assertEquals($result, $expected);
@@ -289,6 +290,21 @@ class Bs3FormHelperTest extends CakeTestCase {
 					'wrap' => 'col-sm-10',
 				)
 			),
+			'styles' => array(
+				'my-style' => array(
+					'formDefaults' => array(
+						'class' => 'my-form-style-class',
+					),
+					'inputDefaults' => array(
+						'class' => 'my-style-control-class',
+						'div' => false,
+						'custom' => array(
+							'wrap' => 'col-sm-12',
+							'externalWrap' => 'col-sm-10'
+						)
+					),
+				)
+			)
 		));
 		$this->Form->create('Contact', array());
 
@@ -329,6 +345,49 @@ class Bs3FormHelperTest extends CakeTestCase {
 				'feedback' => false,
 				'inputGroup' => false,
 				'checkboxLabel' => false,
+				'inline' => false,
+			)
+		);
+		$this->assertEquals($result, $expected);
+
+		$this->Form->create('Contact', array('formStyle' => 'my-style'));
+
+		$result = $this->Form->formOptions;
+		$expected = array(
+			'role' => 'form',
+			'custom' => array(
+				'submitDiv' => null
+			),
+			'class' => 'my-form-style-class',
+			'data-attribute' => 'my-value'
+		);
+		$this->assertEquals($result, $expected);
+
+		$result = $this->Form->inputOptions;
+		$expected = array(
+			'class' => 'my-style-control-class',
+			'div' => false,
+			'label' => array(
+				'class' => 'control-label'
+			),
+			'error' => array(
+				'attributes' => array(
+					'externalWrap' => 'div',
+					'class' => 'help-block'
+				)
+			),
+			'custom' => array(
+				'wrap' => 'col-sm-12',
+				'externalWrap' => 'col-sm-10',
+				'beforeInput' => false,
+				'afterInput' => false,
+				'help' => false,
+				'errorClass' => 'has-error',
+				'errorsAlwaysAsList' => false,
+				'feedback' => false,
+				'inputGroup' => false,
+				'checkboxLabel' => false,
+				'inline' => false,
 			)
 		);
 		$this->assertEquals($result, $expected);
@@ -433,7 +492,6 @@ class Bs3FormHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testFormEnd() {
-		$this->skipIf(true);
 		/*$this->Form->request['_Token'] = array('key' => 'testKey');
 		$encoding = strtolower(Configure::read('App.encoding'));
 		$this->Form->create('Contact');
@@ -467,11 +525,18 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->Form->create('Contact', array('formStyle' => 'horizontal'));
 		$result = $this->Form->end('Submit');
 		$expected = array(
-			array('div' => array('class' => 'form-group')),
-				array('div' => array('class' => 'col-sm-10 col-sm-offset-2')),
-					array('input' => array('type' => 'submit', 'value' => 'Submit')),
-				'/div',
-			'/form'
+			array('div' => array('class' => 'col-sm-10 col-sm-offset-2')),
+				array('input' => array('type' => 'submit', 'value' => 'Submit')),
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact', array('submitDiv' => 'my-submit-div'));
+		$result = $this->Form->end('Submit');
+		$expected = array(
+			array('div' => array('class' => 'my-submit-div')),
+				array('input' => array('type' => 'submit', 'value' => 'Submit')),
+			'/div',
 		);
 		$this->assertTags($result, $expected);
 	}
@@ -535,7 +600,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->Form->create('Contact', array('formStyle' => 'inline'));
 		$result = $this->Form->input('name');
 		$expected = array(
-			'div' => array('class' => 'form-group'),
+			array('div' => array('class' => 'form-group')),
 				array('label' => array('for' => 'ContactName', 'class' => 'sr-only')),
 					'Name',
 				'/label',
@@ -673,7 +738,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->Form->create('Contact', array('inputDefaults' => array('errorsAlwaysAsList' => true)));
 		$result = $this->Form->input('name');
 		$expected = array(
-			'div' => array('class' => 'form-group has-error error'),
+			array('div' => array('class' => 'form-group has-error error')),
 				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
 					'Name',
 				'/label',
@@ -779,7 +844,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 
 		$this->Form->create('Contact', array('formStyle' => 'horizontal'));
 		$result = $this->Form->input('favorites', array('label' => 'Choose your favorites', 'multiple' => 'checkbox', 'inline' => true, 'options' => array('ice-cream' => 'Ice cream', 'chocolate' => 'Chocolate')));
-		//dd($result);
 		$expected = array(
 			array('div' => array('class' => 'form-group')),
 				array('label' => array('for' => 'ContactFavorites', 'class' => 'col-sm-2 control-label')),
@@ -827,7 +891,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->Form->create('Contact', array('formStyle' => 'horizontal'));
 		$result = $this->Form->staticControl('The label', 'The html content');
 		$expected = array(
-			'div' => array('class' => 'form-group'),
+			array('div' => array('class' => 'form-group')),
 				array('label' => array('class' => 'col-sm-2 control-label')),
 					'The label',
 				'/label',

@@ -37,6 +37,7 @@ class Bs3FormHelper extends FormHelper {
 			'feedback' => false,
 			'inputGroup' => false,
 			'checkboxLabel' => false,
+			'inline' => false,
 		)
 	);
 
@@ -55,33 +56,25 @@ class Bs3FormHelper extends FormHelper {
 	);
 
 /**
- * Handles custom options for current input.
+ * Handles custom options for current form.
  *
  * @var string
  */
-	protected $_customInputDefaults = array();
+	public $formOptions = null;
 
 /**
- * Handles custom options for current input.
- *
- * @var string
- */
-	protected $_customInputOptions = array();
-
-/**
- * Handles custom options for current input.
- *
- * @var string
- */
-	protected $_customFormOptions = array();
-
-/**
- * Handles custom options for current input.
+ * Handles custom options for inputs.
  *
  * @var string
  */
 	public $inputOptions = null;
-	public $formOptions = null;
+
+/**
+ * Handles custom options for inputs.
+ *
+ * @var string
+ */
+	public $currentInputOptions = null;
 
 /**
  * Current input type
@@ -138,7 +131,7 @@ class Bs3FormHelper extends FormHelper {
 			$this->formOptions,
 			array('inputDefaults' => $this->inputOptions)
 		);
-		unset($optionsForCreate['custom'], $optionsForCreate['inputDefaults']['custom']);
+		unset($optionsForCreate['custom'], $optionsForCreate['inputDefaults']);
 
 		return parent::create($model, $optionsForCreate);
 	}
@@ -167,22 +160,16 @@ class Bs3FormHelper extends FormHelper {
  */
 	public function end($options = null, $secureAttributes = array()) {
 		$wrap = false;
-		if ($this->formStyle == 'horizontal' && !isset($options['div'])) {
-			if (is_string($options)) {
-				$options = array('label' => $options);
-			}
-			$options['div'] = $this->_customInputDefaults['submitDiv'];
+		if (!empty($this->formOptions['custom']['submitDiv']) && !isset($options['div'])) {
+			$options = is_string($options) ? array('value' => $options) : $options;
+			$options['div'] = $this->formOptions['custom']['submitDiv'];
 			$wrap = true;
 		}
 		$out = parent::end($options);
 
-		if ($wrap) {
-			$out = $this->Html->tag('div', $out, array('class' => 'form-group'));
-		}
-
-		$this->_customInputOptions = null;
 		$this->_inputOptions = null;
 		$this->formStyle = null;
+
 		return $out;
 	}
 
@@ -198,13 +185,8 @@ class Bs3FormHelper extends FormHelper {
 		$this->_inputType = null;
 		$this->_fieldName = $fieldName;
 		$options = $this->_initInputOptions($options);
-		$html = parent::input($fieldName, $options);
 
-		if ($this->formStyle == 'inline') {
-			// Prevents inline inputs to show no space inbetween
-			$html .= ' ';
-		}
-		return $html;
+		return parent::input($fieldName, $options);
 	}
 
 /**
@@ -215,115 +197,88 @@ class Bs3FormHelper extends FormHelper {
  * @return array
  */
 	protected function _initInputOptions($options) {
-		// If label is a string, transform it to proper label options array with the text option
-		if (isset($options['label']) && is_string($options['label'])) {
-			$options['label'] = array(
-				'text' => $options['label']
-			);
-		}
+		$options = $this->_initLabel($options);
+		$options = Hash::merge($this->inputOptions, $options);
+		$options = $this->_initInputGroup($options);
+		$options = $this->_initFeedback($options);
 
-		$options = Hash::merge(
-			array('before' => null, 'between' => null, 'after' => null, 'format' => null),
-			$this->_inputDefaults,
-			$options
-		);
+		$options = $this->_processCustomConfig($options, array_keys($this->_myInputDefaults['custom']));
+		$this->currentInputOptions = $options;
+		unset($options['custom']);
 
-		$this->_customInputOptions = $this->_customInputDefaults;
-		foreach ($this->_availableCustomOptions as $name) {
-			if (isset($options[$name])) {
-				$this->_customInputOptions[$name] = $options[$name];
-			}
-			unset($options[$name]);
-		}
-
-		$this->_inputOptions = $options;
-		$this->_initInputGroup();
-		$this->_initFeedback();
 		return $options;
 	}
 
 /**
- * Overwrites parent method to generate a boostrap input.
+ * Overwrites parent method to generate a custom input.
  *
  * @param type $args
  * @return string
  */
 	protected function _getInput($args) {
-		// Obtiene opciones de BS
-		$customOptions = $this->_customInputOptions;
+		$type = $this->_currentInputType = $args['type'];
+		$options = $this->currentInputOptions;
+		$customOptions = $this->currentInputOptions['custom'];
 
-		// Si es de tipo select multiple con checkbox, no setear clase en checkoxes
-		if ($args['type'] == 'checkbox' ||
-			$args['type'] == 'hidden' ||
+		// TODO: ver esto... Si es de tipo select multiple con checkbox, no setear clase en checkoxes
+		if (in_array($type, array('checkbox', 'hidden')) ||
 			($args['type'] == 'select' &&
 				isset($args['options']['multiple']) &&
 				$args['options']['multiple'] == 'checkbox' &&
 				$args['options']['class'] == 'form-control')) {
-
 			unset($args['options']['class']);
 		}
 
 		// Render input field via parent method
 		$input = parent::_getInput($args);
 
-		if ($args['type'] == 'hidden') {
+		if ($type == 'hidden') {
 			return $input;
 		}
 
-		// beforeInput html
-		$beforeInput = $this->_extractOption('beforeInput', $this->_customInputOptions);
-
-		// afterInput html
-		$afterInput = $this->_extractOption('afterInput', $this->_customInputOptions);
-
-		// beforeInput + input + afterInput
-		$inputHtml = $beforeInput . $input . $afterInput;
+		// Prepend beforeInput and append afterInput to generated input field
+		$html['input'] = $customOptions['beforeInput'] . $input . $customOptions['afterInput'];
 
 		// Checkbox label rendering
-		if ($args['type'] == 'checkbox') {
+		if ($type == 'checkbox') {
 			if ($customOptions['checkboxLabel']) {
-				$inputHtml = $this->Html->tag('label', $inputHtml . ' ' . $customOptions['checkboxLabel']);
+				$html['input'] = $this->Html->tag('label', $html['input'] . ' ' . $customOptions['checkboxLabel']);
 			}
-			$inputHtml = $this->Html->tag('div', $inputHtml, array('class' => 'checkbox'));
+			$html['input'] = $this->Html->tag('div', $html['input'], array('class' => 'checkbox'));
 		}
 
 		// Error rendering, overwrites parent rendering
-		$errorHtml = null;
-		$errorOptions = $this->_extractOption('error', $this->_inputOptions, null);
+		$html['error'] = null;
+		$errorOptions = $this->_extractOption('error', $options, null);
 		if ($this->_inputType !== 'hidden' && $errorOptions !== false) {
-			$errorHtml = $this->error($this->_fieldName, $errorOptions);
+			$html['error'] = $this->error($this->_fieldName, $errorOptions);
 		}
 
 		// Help block rendering
-		$help = $this->_extractOption('help', $this->_customInputOptions, '');
-		$helpHtml = null;
-		if ($help) {
-			$helpHtml = $this->Html->tag('div', $help, array('class' => 'help-block'));
+		$html['help'] = null;
+		if ($customOptions['help']) {
+			$html['help'] = $this->Html->tag('div', $customOptions['help'], array('class' => 'help-block'));
 		}
 
 		// Set size of input if enabled, and get full html of input and block
-		$wrap = $this->_extractOption('externalWrap', $this->_customInputOptions);
-		$size = $this->_extractOption('wrap', $this->_customInputOptions);
-		if ($size) {
-			if ($wrap) {
-				$inputHtml = $this->Html->tag('div', $inputHtml, array('class' => $size));
-				$inputHtml = $this->Html->tag('div', $inputHtml, array('class' => 'row'));
+		if ($customOptions['wrap']) {
+			if ($customOptions['externalWrap']) {
+				$html['input'] = $this->Html->tag('div', $html['input'], array('class' => $customOptions['wrap']));
+				$html['input'] = $this->Html->tag('div', $html['input'], array('class' => 'row'));
+
+				if ($customOptions['externalWrap']) {
+					$fullHtml = $html['input'] . $html['error'] . $html['help'];
+					$fullHtml = $this->Html->tag('div', $fullHtml, array('class' => $customOptions['externalWrap']));
+				}
 			} else {
-				$allHtml = $inputHtml . $errorHtml . $helpHtml;
-				$allHtml = $this->Html->tag('div', $allHtml, array('class' => $size));
+				$fullHtml = $html['input'] . $html['error'] . $html['help'];
+				$fullHtml = $this->Html->tag('div', $fullHtml, array('class' => $customOptions['wrap']));
 			}
 		} else {
-			$allHtml = $inputHtml . $errorHtml . $helpHtml;
+			$fullHtml = $html['input'] . $html['error'] . $html['help'];
 		}
 
-		// Wrap everything if enabled
-		if ($wrap) {
-			$allHtml = $inputHtml . $errorHtml . $helpHtml;
-			$wrap = $this->_extractOption('externalWrap', (array) $wrap, $wrap);
-			$allHtml = $this->Html->tag('div', $allHtml, array('class' => $wrap));
-		}
-
-		return $allHtml;
+		return $fullHtml;
 	}
 
 /**
@@ -335,12 +290,13 @@ class Bs3FormHelper extends FormHelper {
  */
 	protected function _divOptions($options) {
 		$divOptions = parent::_divOptions($options);
-		if ($this->tagIsInvalid() !== false) {
-			$divOptions = $this->addClass($divOptions, $this->_customInputOptions['errorClass']);
+		if ($this->tagIsInvalid() !== false && $this->currentInputOptions['custom']['errorClass']) {
+			$divOptions = $this->addClass($divOptions, $this->currentInputOptions['custom']['errorClass']);
 		}
 		if ($this->_hasFeedback) {
 			$divOptions = $this->addClass($divOptions, 'has-feedback');
 		}
+
 		return $divOptions;
 	}
 
@@ -401,8 +357,8 @@ class Bs3FormHelper extends FormHelper {
 
 		// Opcion inline
 		$inline = null;
-		if (isset($attributes['inline'])) {
-			$inline = $attributes['inline'];
+		if (isset($this->currentInputOptions['custom']['inline']) && $this->currentInputOptions['custom']['inline']) {
+			$inline = $this->currentInputOptions['custom']['inline'];
 			unset($attributes['inline']);
 		}
 
@@ -504,8 +460,8 @@ class Bs3FormHelper extends FormHelper {
 		$html = $this->Html->tag('div', $html, array('class' => $options['class']));
 
 		// If size is set (like in an horizontal form) wrap inside div.size
-		if ($this->_customInputOptions['wrap']) {
-			$html = $this->Html->tag('div', $html, array('class' => $this->_customInputOptions['wrap']));
+		if ($this->inputOptions['custom']) {
+			$html = $this->Html->tag('div', $html, array('class' => $this->inputOptions['custom']['wrap']));
 		}
 
 		if (!empty($options['label'])) {
@@ -520,19 +476,30 @@ class Bs3FormHelper extends FormHelper {
 	}
 
 /**
+ * If label is a string, transform it to proper label options array with the text option
+ */
+	protected function _initLabel($options) {
+		if (isset($options['label']) && is_string($options['label'])) {
+			$options['label'] = array(
+				'text' => $options['label']
+			);
+		}
+
+		return $options;
+	}
+
+/**
  * Generates proper input group rendering. Checks for the existence of 'inputGroup' option
  * and determines if it must prepend and/or append , and the group size.
  * If feedback class starts with a registered icon vendor prefix it automatically adds the vendor class
  *
  * @return array
  */
-	protected function _initInputGroup() {
-		$options = $this->_customInputOptions;
+	protected function _initInputGroup($options) {
 		$inputGroupOptions = $this->_extractOption('inputGroup', $options);
 		if (!$inputGroupOptions) {
-			return;
+			return $options;
 		}
-		unset($this->_customInputOptions['inputGroup']);
 
 		// Check for prepend option. If option stats with a registered icon vendor prefix,
 		// it will automatically add vendor class
@@ -561,29 +528,31 @@ class Bs3FormHelper extends FormHelper {
 			$divOptions = $this->addClass($divOptions, 'input-group-' . $size);
 		}
 
-		$this->_customInputOptions['beforeInput'] .= $this->Html->tag('div', null, $divOptions) . $prepend;
-		$this->_customInputOptions['afterInput'] = $append . '</div>' . $this->_customInputOptions['afterInput'];
+		$options['custom']['beforeInput'] .= $this->Html->tag('div', null, $divOptions) . $prepend;
+		$options['custom']['afterInput'] = $append . '</div>' . $options['custom']['afterInput'];
+
+		return $options;
 	}
 
 /**
- * Generates proper input feedback rendering if 'feedback' option is set.
- * If feedback class starts with a registered icon vendor prefix it automatically adds the vendor class
+ * Generates input feedback rendering if custom option 'feedback' is passed.
+ * If feedback class starts with a registered icon vendor prefix it automatically
+ * adds the vendor class (See Bs3Html::icon() for more info).
  *
  * @param array $options
  * @return array
  */
-	protected function _initFeedback() {
+	protected function _initFeedback($options) {
 		$this->_hasFeedback = false;
-		$feedback = $this->_extractOption('feedback', $this->_customInputOptions);
+
+		$feedback = $this->_extractOption('feedback', $options);
 		if (!$feedback) {
-			return;
+			return $options;
 		}
-		unset($this->_customInputOptions['feedback']);
-		$this->_hasFeedback = true;
 
 		// Set proper style when form is not horizontal
 		$style = null;
-		if ($this->_customInputOptions['externalWrap'] || $this->_customInputOptions['wrap']) {
+		if ($this->currentInputOptions['custom']['externalWrap'] || $this->currentInputOptions['custom']['wrap']) {
 			$style = 'top:0; right: 15px';
 		} elseif ($this->formStyle == 'inline') {
 			$style = 'top:0;';
@@ -598,7 +567,10 @@ class Bs3FormHelper extends FormHelper {
 		$feedback = $this->Html->tag('i', '', array('style' => $style, 'class' => $iconClass . ' form-control-feedback'));
 
 		// Set feedback html after input
-		$this->_customInputOptions['afterInput'] = $this->_customInputOptions['afterInput'] . $feedback;
+		$options['custom']['afterInput'] = $options['custom']['afterInput'] . $feedback;
+		$this->_hasFeedback = true;
+
+		return $options;
 	}
 
 /**
@@ -641,7 +613,7 @@ class Bs3FormHelper extends FormHelper {
 				if (preg_match('/>(<label.*?>)/', $option, $match)) {
 					$class = $attributes['class'];
 
-					$inline = !$class && isset($this->_inputOptions['inline']) && $this->_inputOptions['inline'];
+					$inline = !$class && isset($this->currentInputOptions['custom']['inline']) && $this->currentInputOptions['custom']['inline'];
 					if ($inline) {
 						$class = 'checkbox-inline';
 					}
@@ -719,7 +691,7 @@ class Bs3FormHelper extends FormHelper {
 			unset($options['escape']);
 		}
 		if (is_array($error)) {
-			if (count($error) > ($this->_customInputOptions['errorsAlwaysAsList'] ? 0 : 1)) {
+			if (count($error) > ($this->currentInputOptions['custom']['errorsAlwaysAsList'] ? 0 : 1)) {
 				$listParams = array();
 				if (isset($options['listOptions'])) {
 					if (is_string($options['listOptions'])) {
@@ -763,23 +735,65 @@ class Bs3FormHelper extends FormHelper {
 		return array_keys(Configure::read('Bs3.Form.styles'));
 	}
 
+/**
+ * Processes registered configuration options for a form.
+ * Configuration available levels are:
+ * 1. Default options defined in $this->myFormDefaults and $this->myInputDefaults
+ * 2. Form style options (if any) defined in Bs3.Form.styles.STYLE.formDefaults/inputDefaults
+ * 3. inputDefaults passed on Form::create() options
+ * 4. (For input) Options passed on Form::input()
+ *
+ * @param array $options
+ * @return array
+ */
 	protected function _processConfig($options) {
 		// Get form style
 		$options = $this->_detectFormStyle($options);
+
+		$styleFormDefaults = $styleInputDefaults = array();
+		if ($this->formStyle) {
+			$styleFormDefaults = (array) Configure::read('Bs3.Form.styles.' . $this->formStyle . '.formDefaults');
+			$styleInputDefaults = (array) Configure::read('Bs3.Form.styles.' . $this->formStyle . '.inputDefaults');
+		}
 
 		// Process input configuration
 		$this->inputOptions = Hash::merge(
 			$this->_myInputDefaults,
 			Configure::check('Bs3.Form.inputDefaults') ? Configure::read('Bs3.Form.inputDefaults') : array(),
-			$this->_extractOption('inputDefaults', $options, array())
+			$styleInputDefaults,
+			$this->_processCustomConfig($this->_extractOption('inputDefaults', $options, array()), array_keys($this->_myInputDefaults['custom']))
 		);
 
 		// Process form configuration
+		unset($options['inputDefaults']);
 		$this->formOptions = Hash::merge(
 			$this->_myFormDefaults,
 			Configure::check('Bs3.Form.formDefaults') ? Configure::read('Bs3.Form.formDefaults') : array(),
-			$options
+			$styleFormDefaults,
+			$this->_processCustomConfig($options, array_keys($this->_myFormDefaults['custom']))
 		);
+
+		if ($this->formStyle && empty($this->formOptions['class'])) {
+			$this->formOptions['class'] = 'form-' . $this->formStyle;
+		}
+	}
+
+	function _processCustomConfig($options, $customKeys) {
+		$processed = array('custom' => array());
+		if (isset($options['custom'])) {
+			$processed['custom'] = $options['custom'];
+			unset($options['custom']);
+			$processed = Hash::merge($processed, $options);
+		}
+
+		foreach ($options as $key => $value) {
+			if (in_array($key, $customKeys)) {
+				$processed['custom'][$key] = $options[$key];
+				unset($processed[$key]);
+			}
+		}
+
+		return $processed;
 	}
 
 /**
@@ -792,9 +806,9 @@ class Bs3FormHelper extends FormHelper {
  */
 	protected function _detectFormStyle($options) {
 		$this->formStyle = $this->_extractOption('formStyle', $options);
+		$class = $this->_extractOption('class', $options);
 
 		if (!$this->formStyle) {
-			$class = $this->_extractOption('class', $options);
 			if (!$class) {
 				return $options;
 			}
@@ -807,10 +821,8 @@ class Bs3FormHelper extends FormHelper {
 					break;
 				}
 			}
-		} else {
-			unset($options['formStyle']);
-			$options = $this->addClass($options, 'form-' . $this->formStyle);
 		}
+		unset($options['formStyle']);
 
 		return $options;
 	}
