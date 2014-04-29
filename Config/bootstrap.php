@@ -10,17 +10,13 @@
 Configure::write('Bs3.Form.styles', array(
 	'horizontal' => array(
 		'formDefaults' => array(
-			'custom' => array(
-				'submitDiv' => 'col-sm-10 col-sm-offset-2'
-			)
+			'submitDiv' => 'col-sm-10 col-sm-offset-2'
 		),
 		'inputDefaults' => array(
 			'label' => array(
 				'class' => 'col-sm-2 control-label'
 			),
-			'custom' => array(
-				'wrap' => 'col-sm-10',
-			)
+			'wrap' => 'col-sm-10',
 		)
 	),
 	'inline' => array(
