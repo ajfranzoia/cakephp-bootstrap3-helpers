@@ -1,10 +1,6 @@
 CakePHP Bootstrap 3 FormHelper
 =============================
 
----
-### Version 1.1 in progress,to be soon released
----
-
 Version 1.0
 
 [![Build Status](https://travis-ci.org/Codaxis/bootstrap3-helpers.svg?branch=master)](https://travis-ci.org/Codaxis/bootstrap3-helpers)
@@ -14,6 +10,11 @@ Yet another Cake 2.x form helper, but with minimal coding and highly configurabl
 Compatible with Cake 2.4.7+
 
 Feel free to make any code/docs contributions or post any issues.
+
+---
+#### Version 1.1 in progress,to be soon released
+---
+
 
 ## How to use
 
