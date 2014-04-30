@@ -218,7 +218,7 @@ class Bs3FormHelper extends FormHelper {
  */
 	public function end($options = null, $secureAttributes = array()) {
 		$wrap = false;
-		if ($this->_formStyle == 'horizontal' && !isset($options['div'])) {
+		if ($options !== null && !isset($options['div']) && $this->_formStyle == 'horizontal') {
 			if (is_string($options)) {
 				$options = array('label' => $options);
 			}

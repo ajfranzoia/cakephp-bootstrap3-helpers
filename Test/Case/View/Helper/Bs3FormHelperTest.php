@@ -314,26 +314,12 @@ class Bs3FormHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testFormEnd() {
-		$this->skipIf(true);
-		/*$this->Form->request['_Token'] = array('key' => 'testKey');
-		$encoding = strtolower(Configure::read('App.encoding'));
 		$this->Form->create('Contact');
 		$result = $this->Form->end();
 		$expected = array(
-			array('div' => array('style' => 'display:none;')),
-			array('input' => array(
-				'type' => 'hidden', 'name' => 'data[_Token][fields]',
-				'value' => 'preg:/\d+/', 'id' => 'preg:/TokenFields\d+/'
-			)),
-			array('input' => array(
-				'type' => 'hidden', 'name' => 'data[_Token][unlocked]',
-				'value' => '', 'id' => 'preg:/TokenUnlocked\d+/'
-			)),
-			'/div',
-			'/form',
+			'/form'
 		);
 		$this->assertTags($result, $expected);
-		exit;*/
 
 		$this->Form->create('Contact');
 		$result = $this->Form->end('Submit');
