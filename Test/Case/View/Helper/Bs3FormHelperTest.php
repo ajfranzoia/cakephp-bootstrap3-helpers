@@ -1,13 +1,13 @@
 <?php
 /**
- * FormHelperTest file
+ * Bs3FormHelperTest file
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     Copyright (c) Codaxis (http://codaxis.com)
- * @author        augusto-cdxs (https://github.com/augusto-cdxs/
+ * @author        Codaxis (https://github.com/Codaxis/
  * @link          https://github.com/Codaxis/parsley-helper
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -25,8 +25,6 @@ App::uses('Router', 'Routing');
 
 /**
  * ContactTestController class
- *
- * @package       Cake.Test.Case.View.Helper
  */
 class ContactTestController extends Controller {
 
@@ -40,8 +38,6 @@ class ContactTestController extends Controller {
 
 /**
  * Contact class
- *
- * @package       Cake.Test.Case.View.Helper
  */
 class Contact extends CakeTestModel {
 
@@ -139,16 +135,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$this->Contact = ClassRegistry::init('Contact');
 
 		$this->oldSalt = Configure::read('Security.salt');
-
-		$this->dateRegex = array(
-			'daysRegex' => 'preg:/(?:<option value="0?([\d]+)">\\1<\/option>[\r\n]*)*/',
-			'monthsRegex' => 'preg:/(?:<option value="[\d]+">[\w]+<\/option>[\r\n]*)*/',
-			'yearsRegex' => 'preg:/(?:<option value="([\d]+)">\\1<\/option>[\r\n]*)*/',
-			'hoursRegex' => 'preg:/(?:<option value="0?([\d]+)">\\1<\/option>[\r\n]*)*/',
-			'minutesRegex' => 'preg:/(?:<option value="([\d]+)">0?\\1<\/option>[\r\n]*)*/',
-			'meridianRegex' => 'preg:/(?:<option value="(am|pm)">\\1<\/option>[\r\n]*)*/',
-		);
-
 		Configure::write('Security.salt', 'foo!');
 	}
 
