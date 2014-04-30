@@ -1,5 +1,5 @@
 {
-	"name": "codaxis/bootstrap3-helpers",
+	"name": "codaxis/cakephp-bootstrap3-helpers",
 	"description": "CakePHP highly configurable helpers for Bootstrap 3 framework.",
 	"type": "cakephp-plugin",
 	"keywords": ["cakephp","bootstrap","helper"],
