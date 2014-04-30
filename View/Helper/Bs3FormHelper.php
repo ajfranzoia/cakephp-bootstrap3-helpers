@@ -165,7 +165,45 @@ class Bs3FormHelper extends FormHelper {
 			$options['div'] = $this->formOptions['custom']['submitDiv'];
 			$wrap = true;
 		}
-		$out = parent::end($options);
+
+		$out = null;
+
+		if (!empty($options['button'])) {
+
+			$label = isset($options['label']) ? $options['label'] : __d('cake', 'Submit');
+			unset($options['button'], $options['label']);
+			$out .= $this->Html->tag('button', $label, $options);
+
+		} else {
+			$submit = null;
+			if ($options !== null) {
+				$submitOptions = array();
+				if (is_string($options)) {
+					$submit = $options;
+				} else {
+					if (isset($options['label'])) {
+						$submit = $options['label'];
+						unset($options['label']);
+					}
+					$submitOptions = $options;
+				}
+				$out .= $this->submit($submit, $submitOptions);
+			}
+		}
+
+		if (
+			$this->requestType !== 'get' &&
+			isset($this->request['_Token']) &&
+			!empty($this->request['_Token'])
+		) {
+			$out .= $this->secure($this->fields);
+			$this->fields = array();
+		}
+		$this->setEntity(null);
+		$out .= $this->Html->useTag('formend');
+
+		$this->_View->modelScope = false;
+		$this->requestType = null;
 
 		$this->_inputOptions = null;
 		$this->formStyle = null;

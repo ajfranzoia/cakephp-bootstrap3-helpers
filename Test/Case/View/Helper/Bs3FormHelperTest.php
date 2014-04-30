@@ -106,76 +106,12 @@ class Contact extends CakeTestModel {
 		),
 		'boolean_field' => array('rule' => 'boolean')
 	);
-
-/**
- * schema method
- *
- * @return void
- */
-	public function setSchema($schema) {
-		$this->_schema = $schema;
-	}
-
-/**
- * hasAndBelongsToMany property
- *
- * @var array
- */
-	public $hasAndBelongsToMany = array('ContactTag' => array('with' => 'ContactTagsContact'));
-
-/**
- * hasAndBelongsToMany property
- *
- * @var array
- */
-	public $belongsTo = array('User' => array('className' => 'UserForm'));
 }
 
 /**
- * ContactTagsContact class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ContactTagsContact extends CakeTestModel {
-
-/**
- * useTable property
- *
- * @var boolean
- */
-	public $useTable = false;
-
-/**
- * Default schema
- *
- * @var array
- */
-	protected $_schema = array(
-		'contact_id' => array('type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'),
-		'contact_tag_id' => array(
-			'type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'
-		)
-	);
-
-/**
- * schema method
- *
- * @return void
- */
-	public function setSchema($schema) {
-		$this->_schema = $schema;
-	}
-
-}
-
-/**
- * FormHelperTest class
- *
- * @package       Cake.Test.Case.View.Helper
- * @property FormHelper $Form
+ * Bs3FormHelperTest class
  */
 class Bs3FormHelperTest extends CakeTestCase {
-
 
 /**
  * setUp method
@@ -228,7 +164,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testFormCreate method
+ * testConfiguration method
  *
  * @return void
  */
@@ -394,7 +330,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testFormCreate method
+ * testListFormStyles method
  *
  * @return void
  */
@@ -462,7 +398,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testFormCreate method
+ * testDetectFormStyle method
  *
  * @return void
  */
@@ -481,37 +417,14 @@ class Bs3FormHelperTest extends CakeTestCase {
 
 		$result = $this->Form->create('Contact', array('class' => 'my-class form-inline my-other-class'));
 		$this->assertEqual($this->Form->formStyle, 'inline');
-
-		//$result = $this->Form->create('Contact', array('formStyle' => 'my-style'));
-		//$this->assertEqual($this->Form->formStyle, 'my-style');
 	}
 
 /**
- * testFormCreate method
+ * testFormEnd method
  *
  * @return void
  */
 	public function testFormEnd() {
-		/*$this->Form->request['_Token'] = array('key' => 'testKey');
-		$encoding = strtolower(Configure::read('App.encoding'));
-		$this->Form->create('Contact');
-		$result = $this->Form->end();
-		$expected = array(
-			array('div' => array('style' => 'display:none;')),
-			array('input' => array(
-				'type' => 'hidden', 'name' => 'data[_Token][fields]',
-				'value' => 'preg:/\d+/', 'id' => 'preg:/TokenFields\d+/'
-			)),
-			array('input' => array(
-				'type' => 'hidden', 'name' => 'data[_Token][unlocked]',
-				'value' => '', 'id' => 'preg:/TokenUnlocked\d+/'
-			)),
-			'/div',
-			'/form',
-		);
-		$this->assertTags($result, $expected);
-		exit;*/
-
 		$this->Form->create('Contact');
 		$result = $this->Form->end('Submit');
 		$expected = array(
@@ -528,6 +441,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 			array('div' => array('class' => 'col-sm-10 col-sm-offset-2')),
 				array('input' => array('type' => 'submit', 'value' => 'Submit')),
 			'/div',
+			'/form',
 		);
 		$this->assertTags($result, $expected);
 
@@ -537,6 +451,29 @@ class Bs3FormHelperTest extends CakeTestCase {
 			array('div' => array('class' => 'my-submit-div')),
 				array('input' => array('type' => 'submit', 'value' => 'Submit')),
 			'/div',
+			'/form',
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->end(array('button' => true));
+		$expected = array(
+			'<button',
+				'Submit',
+			'/button',
+			'/form',
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->end(array('label' => '<span>Button allows tags</span>', 'name' => 'my-submit-button', 'button' => true, 'data-my-attr' => 'my-value'));
+		$expected = array(
+			array('button' => array('name' => 'my-submit-button', 'data-my-attr' => 'my-value')),
+				'<span',
+					'Button allows tags',
+				'/span',
+			'/button',
+			'/form',
 		);
 		$this->assertTags($result, $expected);
 	}
@@ -575,7 +512,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testInputWithForm method
+ * testInput method
  *
  * @return void
  */
@@ -669,7 +606,32 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testInputWithForm method
+ * testInputWithHelp method
+ *
+ * @return void
+ */
+	public function testInputWithHelp() {
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name', array('help' => 'This is the help text'));
+		$expected = array(
+			'div' => array('class' => 'form-group'),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('input' => array(
+					'name' => 'data[Contact][name]', 'class' => 'form-control', 'maxlength' => '255',
+					'type' => 'text', 'id' => 'ContactName',
+				)),
+				array('div' => array('class' => 'help-block')),
+					'This is the help text',
+				'/div',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
+ * testInputWithError method
  *
  * @return void
  */
@@ -695,7 +657,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testInputWithForm method
+ * testErrorRendering method
  *
  * @return void
  */
@@ -729,7 +691,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testInputWithForm method
+ * testErrorAlwaysAsList method
  *
  * @return void
  */
@@ -773,7 +735,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 	}
 
 /**
- * testCheckbox method
+ * testCheckboxAndRadio method
  *
  * @return void
  */
@@ -955,10 +917,27 @@ class Bs3FormHelperTest extends CakeTestCase {
 			'/div',
 		);
 		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->input('name', array('feedback' => 'icon-other-vendor'));
+		$expected = array(
+			array('div' => array('class' => 'form-group has-feedback')),
+				array('label' => array('for' => 'ContactName', 'class' => 'control-label')),
+					'Name',
+				'/label',
+				array('input' => array(
+					'name' => 'data[Contact][name]', 'class' => 'form-control', 'maxlength' => '255',
+					'type' => 'text', 'id' => 'ContactName',
+				)),
+				array('i' => array('class' => 'icon-other-vendor form-control-feedback')),
+				'/i',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
 	}
 
 /**
- * testFeedback method
+ * testInputGroup method
  *
  * @return void
  */
