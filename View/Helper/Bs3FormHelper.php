@@ -159,11 +159,10 @@ class Bs3FormHelper extends FormHelper {
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#closing-the-form
  */
 	public function end($options = null, $secureAttributes = array()) {
-		$wrap = false;
+		$options = is_string($options) ? array('value' => $options) : $options;
+
 		if (!empty($this->formOptions['custom']['submitDiv']) && !isset($options['div'])) {
-			$options = is_string($options) ? array('value' => $options) : $options;
 			$options['div'] = $this->formOptions['custom']['submitDiv'];
-			$wrap = true;
 		}
 
 		$out = null;
@@ -172,6 +171,7 @@ class Bs3FormHelper extends FormHelper {
 
 			$label = isset($options['label']) ? $options['label'] : __d('cake', 'Submit');
 			unset($options['button'], $options['label']);
+
 			$out .= $this->Html->tag('button', $label, $options);
 
 		} else {
