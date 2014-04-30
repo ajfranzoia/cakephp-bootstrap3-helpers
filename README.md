@@ -12,7 +12,7 @@ Compatible with Cake 2.4.7+
 Feel free to make any code/docs contributions or post any issues.
 
 ---
-#### Version 1.1 in progress,to be soon released
+#### Version 1.1 in progress, will be released soon
 ---
 
 
