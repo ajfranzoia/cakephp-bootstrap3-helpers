@@ -218,13 +218,18 @@ class Bs3FormHelper extends FormHelper {
  */
 	public function end($options = null, $secureAttributes = array()) {
 		$wrap = false;
-		if ($options !== null && !isset($options['div']) && $this->_formStyle == 'horizontal') {
+
+		if ($options !== null) {
 			if (is_string($options)) {
 				$options = array('label' => $options);
 			}
-			$options['div'] = $this->_customInputDefaults['submitDiv'];
-			$wrap = true;
+
+			if (!isset($options['div']) && $this->_formStyle == 'horizontal') {
+				$options['div'] = $this->_customInputDefaults['submitDiv'];
+				$wrap = true;
+			}
 		}
+
 		$out = parent::end($options);
 
 		if ($wrap) {
