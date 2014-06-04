@@ -392,7 +392,7 @@ class Bs3FormHelper extends FormHelper {
  */
 	protected function _divOptions($options) {
 		$divOptions = parent::_divOptions($options);
-		if ($this->tagIsInvalid() !== false || $this->_customInputOptions['errorMessage']) {
+		if ($this->tagIsInvalid() !== false || !empty($this->_customInputOptions['errorMessage'])) {
 			$divOptions = $this->addClass($divOptions, $this->_customInputOptions['errorClass']);
 		}
 		if ($this->_hasFeedback) {
