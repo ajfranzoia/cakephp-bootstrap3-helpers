@@ -618,6 +618,13 @@ class Bs3FormHelper extends FormHelper {
 			$divOptions = $this->addClass($divOptions, 'input-group-' . $size);
 		}
 
+		if (!isset($this->_customInputOptions['beforeInput'])) {
+			$this->_customInputOptions['beforeInput'] = '';
+		}
+		if (!isset($this->_customInputOptions['afterInput'])) {
+			$this->_customInputOptions['afterInput'] = '';
+		}
+
 		$this->_customInputOptions['beforeInput'] .= $this->Html->tag('div', null, $divOptions) . $prepend;
 		$this->_customInputOptions['afterInput'] = $append . '</div>' . $this->_customInputOptions['afterInput'];
 	}
