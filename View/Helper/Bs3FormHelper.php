@@ -190,8 +190,22 @@ class Bs3FormHelper extends FormHelper {
 		$options = Hash::merge($formDefaults, $options);
 		$this->_customFormOptions = $options;
 
+		$options = $this->_beforeCreate($model, $options);
+
 		$out = parent::create($model, $options);
 		return $out;
+	}
+
+/**
+ * Before create processing.
+ * Allows child classes to hook.
+ *
+ * @param  string $model
+ * @param  array $options
+ * @return [type]          [description]
+ */
+	protected function _beforeCreate($model, $options) {
+		return $options;
 	}
 
 /**
