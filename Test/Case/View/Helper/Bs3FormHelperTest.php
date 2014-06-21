@@ -731,7 +731,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$expected = array(
 			array('div' => array('class' => 'form-group')),
 				array('div' => array('class' => 'checkbox')),
-					'<label',
+					'label' => array('for' => 'ContactActive'),
 						array('input' => array('type' => 'hidden', 'name' => 'data[Contact][active]', 'id' => 'ContactActive_', 'value' => 0)),
 						array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][active]', 'value' => 1, 'id' => 'ContactActive')),
 						' My checkbox label',
@@ -750,7 +750,7 @@ class Bs3FormHelperTest extends CakeTestCase {
 				'/label',
 				array('div' => array('class' => 'col-sm-10')),
 					array('div' => array('class' => 'checkbox')),
-						'<label',
+						'label' => array('for' => 'ContactActive'),
 							array('input' => array('type' => 'hidden', 'name' => 'data[Contact][active]', 'id' => 'ContactActive_', 'value' => 0)),
 							array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][active]', 'value' => 1, 'id' => 'ContactActive')),
 							' My checkbox label',

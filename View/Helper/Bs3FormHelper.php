@@ -279,7 +279,9 @@ class Bs3FormHelper extends FormHelper {
 		// Checkbox label rendering
 		if ($type == 'checkbox') {
 			if ($this->_getCustom('checkboxLabel')) {
-				$html['input'] = $this->Html->tag('label', $html['input'] . ' ' . $this->_getCustom('checkboxLabel'));
+				$options = $this->domId($args);
+				$html['input'] .= ' ' . $customOptions['checkboxLabel'];
+				$html['input'] = $this->Html->tag('label', $html['input'], array('for' => $options['id']));
 			}
 			$html['input'] = $this->Html->tag('div', $html['input'], array('class' => 'checkbox'));
 		}
