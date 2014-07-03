@@ -177,7 +177,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 			),
 			'error' => array(
 				'attributes' => array(
-					'externalWrap' => 'div',
 					'class' => 'help-block'
 				)
 			),
@@ -252,7 +251,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 			),
 			'error' => array(
 				'attributes' => array(
-					'externalWrap' => 'div',
 					'class' => 'help-block'
 				)
 			),
@@ -294,7 +292,6 @@ class Bs3FormHelperTest extends CakeTestCase {
 			),
 			'error' => array(
 				'attributes' => array(
-					'externalWrap' => 'div',
 					'class' => 'help-block'
 				)
 			),

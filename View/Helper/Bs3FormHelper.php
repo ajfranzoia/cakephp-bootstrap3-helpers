@@ -34,7 +34,6 @@ class Bs3FormHelper extends FormHelper {
 		),
 		'error' => array(
 			'attributes' => array(
-				'externalWrap' => 'div',
 				'class' => 'help-block'
 			)
 		),
@@ -708,7 +707,7 @@ class Bs3FormHelper extends FormHelper {
  */
 	public function error($field, $text = null, $options = array()) {
 		$defaults = array(
-			'externalWrap' => true,
+			'wrap' => true,
 			'class' => 'error-message',
 			'escape' => true,
 		);
@@ -778,11 +777,12 @@ class Bs3FormHelper extends FormHelper {
 			}
 		}
 
-		if ($options['externalWrap']) {
-			$tag = is_string($options['externalWrap']) ? $options['externalWrap'] : 'div';
-			unset($options['externalWrap']);
-			return $this->Html->tag($tag, $error === null ? '' : $error, $options);
+		if ($options['wrap']) {
+			$tag = is_string($options['wrap']) ? $options['wrap'] : 'div';
+			unset($options['wrap']);
+			return $this->Html->tag($tag, $error, $options);
 		}
+
 		return $error;
 	}
 
