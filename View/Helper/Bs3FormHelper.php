@@ -1,14 +1,26 @@
 <?php
+/**
+ * Bs3FormHelper file
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice
+ *
+ * @author        Codaxis (https://github.com/Codaxis/
+ * @link          https://github.com/Codaxis/cakephp-bootstrap3-helpers
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
 
 App::uses('FormHelper', 'View/Helper');
 App::uses('Hash', 'Utility');
 
+/**
+ * Bs3FormHelper class.
+ */
 class Bs3FormHelper extends FormHelper {
 
 /**
- * Available options for inputs.
- *
- *  - wrap:  HTML4 Strict.
+ * Available options.
  *
  * @var array
  */
@@ -376,6 +388,16 @@ class Bs3FormHelper extends FormHelper {
 		}
 		unset($attributes['empty']);
 
+		$legend = false;
+		if (isset($attributes['legend'])) {
+			if ($attributes['legend'] === true) {
+				$legend = __(Inflector::humanize($this->field()));
+			} else {
+				$legend = $attributes['legend'];
+			}
+			unset($attributes['legend']);
+		}
+
 		$label = true;
 		if (isset($attributes['label'])) {
 			$label = $attributes['label'];
@@ -478,6 +500,9 @@ class Bs3FormHelper extends FormHelper {
 
 		if (is_array($between)) {
 			$between = '';
+		}
+		if ($legend) {
+			$out = $this->Html->useTag('fieldset', '', $this->Html->useTag('legend', $legend) . $between . $out);
 		}
 
 		return $out;

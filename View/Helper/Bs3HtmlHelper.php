@@ -1,4 +1,15 @@
 <?php
+/**
+ * Bs3HtmlHelper file
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice
+ *
+ * @author        Codaxis (https://github.com/Codaxis/
+ * @link          https://github.com/Codaxis/cakephp-bootstrap3-helpers
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
 
 App::uses('HtmlHelper', 'View/Helper');
 App::uses('Hash', 'Utility');

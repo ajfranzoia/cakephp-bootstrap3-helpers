@@ -781,6 +781,32 @@ class Bs3FormHelperTest extends CakeTestCase {
 			'/div'
 		);
 		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->input('gender', array('label' => false, 'legend' => true, 'type' => 'radio', 'options' => array('F' => 'Female', 'M' => 'Male')));
+		$expected = array(
+			array('div' => array('class' => 'form-group')),
+				'<fieldset',
+					'<legend',
+						'Gender',
+					'/legend',
+					array('input' => array('type' => 'hidden', 'name' => 'data[Contact][gender]', 'id' => 'ContactGender_', 'value' => '')),
+					array('div' => array('class' => 'radio')),
+						array('label' => array('for' => 'ContactGenderF')),
+							array('input' => array('type' => 'radio', 'name' => 'data[Contact][gender]', 'id' => 'ContactGenderF', 'value' => 'F')),
+							' Female',
+						'/label',
+					'/div',
+					array('div' => array('class' => 'radio')),
+						array('label' => array('for' => 'ContactGenderM')),
+							array('input' => array('type' => 'radio', 'name' => 'data[Contact][gender]', 'id' => 'ContactGenderM', 'value' => 'M')),
+							' Male',
+						'/label',
+					'/div',
+				'/fieldset',
+			'/div'
+		);
+		$this->assertTags($result, $expected);
 	}
 
 /**
