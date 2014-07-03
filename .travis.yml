@@ -6,10 +6,9 @@ php:
   - 5.5
 
 env:
-  - CAKE_VERSION=2.4.6
-  - CAKE_VERSION=2.4.7
-  - CAKE_VERSION=2.4.8
-  - CAKE_VERSION=2.4.9
+  - CAKE_VERSION=2.5.0
+  - CAKE_VERSION=2.5.1
+  - CAKE_VERSION=2.5.2
 
 before_script:
   - sh -c "mysql -e 'CREATE DATABASE cakephp_test;'"
