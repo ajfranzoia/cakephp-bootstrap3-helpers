@@ -1,18 +1,13 @@
 <?php
 /**
- * HtmlHelperTest file
- *
- * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Bs3HtmlHelperTest file
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
- * @package       Cake.Test.Case.View.Helper
- * @since         CakePHP(tm) v 1.2.0.4206
+ * @author        Codaxis (https://github.com/Codaxis/
+ * @link          https://github.com/Codaxis/cakephp-bootstrap3-helpers
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
@@ -23,17 +18,10 @@ App::uses('HtmlHelper', 'View/Helper');
 App::uses('FormHelper', 'View/Helper');
 App::uses('ClassRegistry', 'Utility');
 App::uses('Folder', 'Utility');
-
 App::uses('Bs3HtmlHelper', 'Bs3Helpers.View/Helper');
-
-if (!defined('FULL_BASE_URL')) {
-	define('FULL_BASE_URL', 'http://cakephp.org');
-}
 
 /**
  * TheHtmlTestController class
- *
- * @package       Cake.Test.Case.View.Helper
  */
 class TheHtmlTestController extends Controller {
 
@@ -213,6 +201,29 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 					array('li' => array('class' => 'active')),
 						array('a' => array('href' => '#')),
 							'Link 5',
+						'/a',
+					'/li',
+				'/ul',
+			'/div',
+		);
+		$this->assertTags($result, $expected);
+
+		$result = $this->Html->dropdown('My dropdown', '<li><a href="#">My passed html</a></li>');
+		$expected = array(
+			'div' => array('class' => 'dropdown'),
+				'button' => array(
+					'type' => 'button',
+					'class' => 'btn btn-default sr-only dropdown-toggle',
+					'data-toggle' => 'dropdown',
+				),
+					'My dropdown',
+					'span' => array('class' => 'caret'),
+					'/span',
+				'/button',
+				'ul' => array('class' => 'dropdown-menu'),
+					'<li',
+						array('a' => array('href' => '#')),
+							'My passed html',
 						'/a',
 					'/li',
 				'/ul',
