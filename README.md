@@ -13,7 +13,7 @@ Feel free to make any code/docs contributions or post any issues.
 
 1. Install with composer by running `composer require codaxis/cakephp-bootstrap3-helpers:1.1` or clone/copy files into `app/Plugin/Bs3Helpers`
 
-2. Include the plugin in your bootstrap.php with `CakePlugin::load('Bs3Helpers')` or `CakePlugin::load('Bs3Helpers', array('bootstrap' => true))` to load common Bootstrap form styles included.
+2. Include the plugin in your bootstrap.php with `CakePlugin::load('Bs3Helpers')` or `CakePlugin::load('Bs3Helpers', array('bootstrap' => true))` to load included default Bootstrap form styles.
 
 3. Load helper in your ```AppController```. Use classname option if you want to keep your helper alias as Form.
 
@@ -92,7 +92,6 @@ Configure::write('Bs3.Form.styles', array(
 	)
 ));
 ```
-
 
 ## Html helper usage options
 
