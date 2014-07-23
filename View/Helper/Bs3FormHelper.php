@@ -878,6 +878,11 @@ class Bs3FormHelper extends FormHelper {
  */
 	protected function _detectFormStyle($options) {
 		$this->formStyle = $this->_extractOption('formStyle', $options);
+
+		if(empty($this->formStyle) && NULL !== Configure::read('Bs3.Form.formStyle')) {
+			$this->formStyle = Configure::read('Bs3.Form.formStyle');
+		}
+
 		$class = $this->_extractOption('class', $options);
 
 		if (!$this->formStyle) {
