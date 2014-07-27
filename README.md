@@ -17,9 +17,9 @@ Feel free to make any code/docs contributions or post any issues.
 
 	```php
 	// In AppController.php
-	public $helpers = array('Bs3Helpers.Bs3FormHelper');
+	public $helpers = array('Bs3Helpers.Bs3Form');
 	// or
-	public $helpers = array('Form' => array('className' => 'Bs3Helpers.Bs3FormHelper'));
+	public $helpers = array('Form' => array('className' => 'Bs3Helpers.Bs3Form'));
 	```
 
 4. Define your custom form styles at wish in your bootstrap.php
