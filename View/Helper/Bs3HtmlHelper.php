@@ -52,6 +52,19 @@ class Bs3HtmlHelper extends HtmlHelper {
 		$this->_config = Hash::merge($this->_defaults, $userConfig);
 	}
 
+
+	public function cdnCss() {
+		return $this->css('//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css');
+	}
+
+
+	public function cdnJs() {
+		return $this->js('//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js');
+	}
+
+	public function cdnFontAwesome() {
+		return $this->css('//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css');
+	}
 /**
  * Render a panel heading
  *

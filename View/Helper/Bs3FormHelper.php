@@ -62,7 +62,8 @@ class Bs3FormHelper extends FormHelper {
 	protected $_myFormDefaults = array(
 		'role' => 'form',
 		'custom' => array(
-			'submitDiv' => null
+			'submitDiv' => null,
+			'submitButton' => null
 		)
 	);
 
@@ -178,12 +179,29 @@ class Bs3FormHelper extends FormHelper {
 
 		$out = null;
 
-		if (!empty($options['button'])) {
+		$isButton = (isset($options['button']) && $options['button'] != false) || $this->formOptions['custom']['submitButton'];
+		if ($isButton) {
 
-			$label = isset($options['label']) ? $options['label'] : __d('cake', 'Submit');
+			$btnOptions = array();
+			if (isset($options['button']) && is_string($options['button'])) {
+				$btnOptions['class'] = $options['button'];
+			} else {
+				$btnOptions['class'] = $this->formOptions['custom']['submitButton'];
+			}
+
+			if (!isset($options['label']) && isset($options['value'])) {
+				$label = $options['value'];
+			} else {
+				$label = isset($options['label']) ? $options['label'] : __d('cake', 'Submit');
+			}
+
 			unset($options['button'], $options['label']);
 
-			$out .= $this->Html->tag('button', $label, $options);
+			$out = $this->Html->tag('button', $label, $btnOptions);
+
+			if (!empty($options['div'])) {
+				$out = $this->Html->tag('div', $out, array('class' => $options['div']));
+			}
 
 		} else {
 			$submit = null;
