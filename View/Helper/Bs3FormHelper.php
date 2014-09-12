@@ -173,14 +173,14 @@ class Bs3FormHelper extends FormHelper {
 	public function end($options = null, $secureAttributes = array()) {
 		$options = is_string($options) ? array('value' => $options) : $options;
 
-		if (!empty($this->formOptions['custom']['submitDiv']) && !isset($options['div'])) {
-			$options['div'] = $this->formOptions['custom']['submitDiv'];
-		}
-
 		$out = null;
 
 		$isButton = (isset($options['button']) && $options['button'] != false) || $this->formOptions['custom']['submitButton'];
 		if ($isButton) {
+
+			if (!empty($this->formOptions['custom']['submitDiv']) && !isset($options['div'])) {
+				$options['div'] = $this->formOptions['custom']['submitDiv'];
+			}
 
 			$btnOptions = array();
 			if (isset($options['button']) && is_string($options['button'])) {
@@ -264,6 +264,10 @@ class Bs3FormHelper extends FormHelper {
  * @return array
  */
 	protected function _initInputOptions($options) {
+		if ($this->formStyle == null) {
+			$this->inputOptions = array();
+		}
+
 		$options = $this->_initLabel($options);
 		$options = Hash::merge($this->inputOptions, $options);
 		$options = $this->currentInputOptions = $this->_processCustomConfig('input', $options);
@@ -324,12 +328,12 @@ class Bs3FormHelper extends FormHelper {
 
 		// Help block rendering
 		$html['help'] = null;
-		if ($customOptions['help']) {
+		if (!empty($customOptions['help'])) {
 			$html['help'] = $this->Html->tag('div', $customOptions['help'], array('class' => 'help-block'));
 		}
 
 		// Set size of input if enabled, and get full html of input and block
-		if ($customOptions['wrap']) {
+		if (!empty($customOptions['wrap'])) {
 			if ($customOptions['externalWrap']) {
 				$html['input'] = $this->Html->tag('div', $html['input'], array('class' => $customOptions['wrap']));
 				$html['input'] = $this->Html->tag('div', $html['input'], array('class' => 'row'));
