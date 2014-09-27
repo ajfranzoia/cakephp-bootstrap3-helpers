@@ -264,7 +264,7 @@ class Bs3FormHelper extends FormHelper {
  * @return array
  */
 	protected function _initInputOptions($options) {
-		if ($this->formStyle == null) {
+		if ($this->formStyle == null && empty($this->inputOptions)) {
 			$this->inputOptions = array();
 		}
 
