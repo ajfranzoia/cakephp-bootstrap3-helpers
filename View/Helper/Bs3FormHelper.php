@@ -175,12 +175,12 @@ class Bs3FormHelper extends FormHelper {
 
 		$out = null;
 
+		if (!empty($this->formOptions['custom']['submitDiv']) && !isset($options['div'])) {
+			$options['div'] = $this->formOptions['custom']['submitDiv'];
+		}
+
 		$isButton = (isset($options['button']) && $options['button'] != false) || $this->formOptions['custom']['submitButton'];
 		if ($isButton) {
-
-			if (!empty($this->formOptions['custom']['submitDiv']) && !isset($options['div'])) {
-				$options['div'] = $this->formOptions['custom']['submitDiv'];
-			}
 
 			$btnOptions = array();
 			if (isset($options['button']) && is_string($options['button'])) {
@@ -197,6 +197,7 @@ class Bs3FormHelper extends FormHelper {
 
 			unset($options['button'], $options['label']);
 
+			$btnOptions = array_merge($options, $btnOptions);
 			$out = $this->Html->tag('button', $label, $btnOptions);
 
 			if (!empty($options['div'])) {

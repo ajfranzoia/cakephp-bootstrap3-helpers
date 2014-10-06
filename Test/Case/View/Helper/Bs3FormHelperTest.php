@@ -161,7 +161,8 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'role' => 'form',
 			'custom' => array(
-				'submitDiv' => null
+				'submitDiv' => null,
+				'submitButton' => null,
 			)
 		);
 		$this->assertEquals($result, $expected);
@@ -233,7 +234,8 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'role' => 'form',
 			'custom' => array(
-				'submitDiv' => null
+				'submitDiv' => null,
+				'submitButton' => null,
 			),
 			'class' => 'my-default-class',
 			'data-attribute' => 'my-value'
@@ -276,7 +278,8 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'role' => 'form',
 			'custom' => array(
-				'submitDiv' => null
+				'submitDiv' => null,
+				'submitButton' => null,
 			),
 			'class' => 'my-form-style-class',
 			'data-attribute' => 'my-value'
