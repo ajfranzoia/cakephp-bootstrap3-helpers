@@ -294,9 +294,11 @@ class Bs3FormHelper extends FormHelper {
 		if (in_array($type, array('checkbox', 'hidden')) ||
 			($args['type'] == 'select' &&
 				isset($args['options']['multiple']) &&
-				$args['options']['multiple'] == 'checkbox' &&
-				$args['options']['class'] == 'form-control')) {
-			unset($args['options']['class']);
+				$args['options']['multiple'] == 'checkbox')) {
+
+			if ($args['options']['class'] == 'form-control'){
+				unset($args['options']['class']);
+			}
 		}
 
 		// Render input field via parent method
