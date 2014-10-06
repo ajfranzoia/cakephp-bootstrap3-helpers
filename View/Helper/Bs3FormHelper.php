@@ -841,11 +841,11 @@ class Bs3FormHelper extends FormHelper {
 
 		// Process input configuration
 		$this->inputOptions = Hash::merge(
-			$this->_myInputDefaults,
 			Configure::check('Bs3.Form.inputDefaults') ? Configure::read('Bs3.Form.inputDefaults') : array(),
 			$this->_processCustomConfig('input', $styleInputDefaults),
 			$this->_processCustomConfig('input', $this->_extractOption('inputDefaults', $options, array()))
 		);
+		$this->inputOptions = Hash::merge($this->_myInputDefaults, $this->inputOptions);
 
 		// Process form configuration
 		unset($options['inputDefaults']);
