@@ -412,6 +412,23 @@ class Bs3FormHelperTest extends CakeTestCase {
  */
 	public function testFormEnd() {
 		$this->Form->create('Contact');
+		$result = $this->Form->end();
+		$expected = array(
+			'/form'
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->end('Submit');
+		$expected = array(
+			'div' => array('class' => 'submit'),
+			'input' => array('type' => 'submit', 'value' => 'Submit'),
+			'/div',
+			'/form'
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
 		$result = $this->Form->end('Submit');
 		$expected = array(
 			'div' => array('class' => 'submit'),

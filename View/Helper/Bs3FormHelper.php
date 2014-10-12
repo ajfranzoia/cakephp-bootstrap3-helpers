@@ -171,6 +171,7 @@ class Bs3FormHelper extends FormHelper {
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#closing-the-form
  */
 	public function end($options = null, $secureAttributes = array()) {
+		$render = !empty($options);
 		$options = is_string($options) ? array('value' => $options) : $options;
 
 		$out = null;
@@ -206,7 +207,7 @@ class Bs3FormHelper extends FormHelper {
 
 		} else {
 			$submit = null;
-			if ($options !== null) {
+			if ($render) {
 				$submitOptions = array();
 				if (is_string($options)) {
 					$submit = $options;
