@@ -103,7 +103,21 @@ class Bs3HtmlHelper extends HtmlHelper {
 
 		return null;
 	}
-
+        
+/**
+ * Render a panel heading
+ *
+ * @param string $html
+ * @param array $options
+ * @return string
+ */
+        public function panelFooter($html, $options = array()) {
+                $defaults = array('class' => '');
+		$options = array_merge($defaults, $options);
+		$options = $this->addClass($options, 'panel-footer');
+		return $this->tag('div', $html, $options);
+        }
+        
 /**
  * Render a panel heading
  *
@@ -140,10 +154,10 @@ class Bs3HtmlHelper extends HtmlHelper {
  * @param array $options
  * @return string
  */
-	public function panel($headingHtml, $bodyHtml = null, $options = array()) {
+	public function panel($headingHtml, $bodyHtml = null, $footerHtml = null, $options = array()) {
 		$defaults = array(
-			'class' => 'panel-default', 'headingOptions' => array(), 'bodyOptions' => array(),
-			'wrapHeading' => true, 'wrapBody' => true
+			'class' => 'panel-default', 'headingOptions' => array(), 'footerOptions' => array(), 'bodyOptions' => array(),
+			'wrapHeading' => true, 'wrapFooter' => true, 'wrapBody' => true
 		);
 		if ($this->_blockRendering) {
 			$options = $bodyHtml;
@@ -153,13 +167,14 @@ class Bs3HtmlHelper extends HtmlHelper {
 
 		if (!$this->_blockRendering) {
 			$heading = $options['wrapHeading'] ? $this->panelHeading($headingHtml, $options['headingOptions']) : $headingHtml;
+                        $footer = $options['wrapFooter'] && $footerHtml ? $this->panelFooter($footerHtml, $options['footerOptions']) : $footerHtml;
 			$body = $options['wrapBody'] ? $this->panelBody($bodyHtml, $options['bodyOptions']) : $bodyHtml;
-			$html = $heading . $body;
+			$html = $heading . $body . $footer;
 		} else {
 			$html = $headingHtml;
 		}
 
-		unset($options['headingOptions'], $options['bodyOptions'], $options['wrapHeading'], $options['wrapBody']);
+		unset($options['headingOptions'], $options['footerOptions'], $options['bodyOptions'], $options['wrapFooter'], $options['wrapHeading'], $options['wrapBody']);
 		return $this->tag('div', $html, $options);
 	}
 
