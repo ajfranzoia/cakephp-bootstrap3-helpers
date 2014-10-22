@@ -325,7 +325,7 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 		);
 		$this->assertTags($result, $expected);
                 
-                $result = $this->Html->panelFooter('A panel foooter', array(
+                $result = $this->Html->panelFooter('A panel footer', array(
 			'class' => 'my-panel-footer', 'data-my-value' => '123'
 		));
 		$expected = array(
@@ -450,7 +450,7 @@ class Bs3HtmlHelperTest extends CakeTestCase {
 		echo $this->Html->tag('div', 'A panel footer with block rendering');
 		$result = $this->Html->panelFooterEnd();
 		$expected = array(
-			'div' => array('class' => 'my-panel-heading panel-footer'),
+			'div' => array('class' => 'my-panel-footer panel-footer'),
 			'<div',
 			'A panel footer with block rendering',
 			'/div',

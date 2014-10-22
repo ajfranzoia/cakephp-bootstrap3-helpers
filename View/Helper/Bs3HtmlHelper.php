@@ -224,7 +224,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 
 		$blockRendering = $this->_blockRendering;
 		$this->_blockRendering = false;
-		$itemHtml = $this->panel($heading, $body, array('wrapBody' => false));
+		$itemHtml = $this->panel($heading, $body, null, array('wrapBody' => false));
 		$this->_blockRendering = $blockRendering;
 		return $itemHtml;
 	}
