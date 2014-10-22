@@ -151,6 +151,7 @@ class Bs3HtmlHelper extends HtmlHelper {
  *
  * @param string $headingHtml
  * @param string $bodyHtml
+ * @param string $footerHtml
  * @param array $options
  * @return string
  */
