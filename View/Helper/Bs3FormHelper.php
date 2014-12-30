@@ -924,5 +924,21 @@ class Bs3FormHelper extends FormHelper {
 
 		return $options;
 	}
+
+/**
+ * Overrides parent method to remove undesirable properties when dealing with bare inputs
+ * Unsets 'div', 'label' and 'error' from $params, all of them used in via input()
+ * to prevent them from being rendered as tag attributes
+ *
+ * @param string $method Method name / input type to make.
+ * @param array $params Parameters for the method call
+ * @return string Formatted input method.
+ * @throws CakeException When there are no params for the method call.
+ */
+	public function __call($method, $params) {
+		unset($params[1]['div'], $params[1]['label'], $params[1]['error']);
+
+		return parent::__call($method, $params);
+	}
 }
 
