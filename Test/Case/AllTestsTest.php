@@ -23,7 +23,7 @@ class AllTestsTest extends PHPUnit_Framework_TestSuite {
  */
 	public static function suite() {
 		$suite = new CakeTestSuite('All Bs3Helpers tests');
-		$path = CakePlugin::path('Bs3Helpers') . 'Test' . DS . 'Case' . DS . 'View' . DS . 'Helper' . DS;
+		$path = dirname(__FILE__). DS . 'View' . DS . 'Helper' . DS;
 		$suite->addTestDirectory($path);
 		return $suite;
 	}
