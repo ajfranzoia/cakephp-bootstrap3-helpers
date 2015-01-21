@@ -965,7 +965,7 @@ class Bs3FormHelper extends FormHelper {
             unset($options['method']);
         }
         if (!empty($options['confirm'])) {
-            $confirmMessage = $options['confirm'];
+            $confirmMessage['text'] = $options['confirm'];
             unset($options['confirm']);
         }
 
