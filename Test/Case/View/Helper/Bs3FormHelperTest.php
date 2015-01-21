@@ -1095,4 +1095,70 @@ class Bs3FormHelperTest extends CakeTestCase {
 		);
 		$this->assertTags($result, $expected);
 	}
+        
+/**
+ * testPostLink method
+ *
+ * @return void
+ */
+	public function testPostLink() {
+		$result = $this->Form->postLink('Delete', '/posts/delete/1', array(), array('confirm' => 'Confirm?'));
+		$this->assertTags($result, array(
+			'form' => array(
+				'method' => 'post', 'action' => '/posts/delete/1',
+				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
+			),
+			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
+			'/form',
+			'a' => array('href' => '#', 'onclick' => 'preg:/if \(confirm\(&quot;Confirm\?&quot;\)\) \{ document\.post_\w+\.submit\(\); \} event\.returnValue = false; return false;/'),
+			'Delete',
+			'/a'
+		));
+
+		$result = $this->Form->postLink('Delete', '/posts/delete/1', array('escape' => false), '\'Confirm\' this "deletion"?');
+		$this->assertTags($result, array(
+			'form' => array(
+				'method' => 'post', 'action' => '/posts/delete/1',
+				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
+			),
+			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
+			'/form',
+			'a' => array('href' => '#', 'onclick' => 'preg:/if \(confirm\(&quot;&#039;Confirm&#039; this \\\\&quot;deletion\\\\&quot;\?&quot;\)\) \{ document\.post_\w+\.submit\(\); \} event\.returnValue = false; return false;/'),
+			'Delete',
+			'/a'
+		));
+
+		$result = $this->Form->postLink('Delete', '/posts/delete', array('data' => array('id' => 1)));
+		$this->assertContains('<input type="hidden" name="data[id]" value="1"/>', $result);
+
+		$result = $this->Form->postLink('Delete', '/posts/delete/1', array('target' => '_blank'));
+		$this->assertTags($result, array(
+			'form' => array(
+				'method' => 'post', 'target' => '_blank', 'action' => '/posts/delete/1',
+				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
+			),
+			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
+			'/form',
+			'a' => array('href' => '#', 'onclick' => 'preg:/document\.post_\w+\.submit\(\); event\.returnValue = false; return false;/'),
+			'Delete',
+			'/a'
+		));
+
+		$result = $this->Form->postLink(
+			'',
+			array('controller' => 'items', 'action' => 'delete', 10),
+			array('class' => 'btn btn-danger', 'escape' => false),
+			'Confirm thing'
+		);
+		$this->assertTags($result, array(
+			'form' => array(
+				'method' => 'post', 'action' => '/items/delete/10',
+				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
+			),
+			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
+			'/form',
+			'a' => array('class' => 'btn btn-danger', 'href' => '#', 'onclick' => 'preg:/if \(confirm\(\&quot\;Confirm thing\&quot\;\)\) \{ document\.post_\w+\.submit\(\); \} event\.returnValue = false; return false;/'),
+			'/a'
+		));
+	}
 }
