@@ -1103,62 +1103,130 @@ class Bs3FormHelperTest extends CakeTestCase {
  */
 	public function testPostLink() {
 		$result = $this->Form->postLink('Delete', '/posts/delete/1', array(), array('confirm' => 'Confirm?'));
-		$this->assertTags($result, array(
-			'form' => array(
-				'method' => 'post', 'action' => '/posts/delete/1',
-				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
-			),
-			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
-			'/form',
-			'a' => array('href' => '#', 'onclick' => 'preg:/if \(confirm\(&quot;Confirm\?&quot;\)\) \{ document\.post_\w+\.submit\(\); \} event\.returnValue = false; return false;/'),
-			'Delete',
-			'/a'
-		));
+                $expected = array(
+                    array('form' => array('method' => 'post', 'action' => '/posts/delete/1','name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;')),
+                        array('input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST')),
+                    '/form',
+                    array('a' => array('href' => '#', 'onclick' => 'event.returnValue = false; return false;', 'data-toggle' => 'modal', 'data-target' => 'preg:/#post_\w+-modal/')),
+                        'Delete',
+                    '/a',
+                    array('div' => array('class' => 'modal fade text-left','id' => 'preg:/post_\w+\-modal/','tabindex' => '-1','role' => 'dialog','aria-labelledby' => 'preg:/#post_\w+-label/','aria-hidden' => 'true')),
+                        array('div' => array('class' => 'modal-dialog')),
+                            array('div' => array('class' => 'modal-content')),
+                                array('div' => array('class' => 'modal-header')),
+                                    array('button' => array('type' => 'button','class' => 'close','data-dismiss' => 'modal','aria-hidden' => 'true')),
+                                        '&times;',
+                                    '/button',
+                                    array('h4' => array('class' => 'modal-title','id' => 'preg:/#post_\w+-label/')),
+                                        'Confirmation Dialog',
+                                    '/h4',
+                                '/div',
+                                array('div' => array('class' => 'modal-body')),
+                                    'Confirm?',
+                                '/div',
+                                array('div' => array('class' => 'modal-footer')),
+                                    array('button' => array('type' => 'button','class' => 'btn btn-default','data-dismiss' => 'modal')),
+                                        'No',
+                                    '/button',
+                                    array('a' => array('href' => '#','class' => 'btn btn-primary','onclick' => 'preg:/document\.post_\w+\.submit\(\)\;/')),
+                                        'Yes',
+                                    '/a',
+                                '/div',
+                            '/div',
+                        '/div',
+                    '/div'
+                );
+                $this->assertTags($result, $expected);
 
 		$result = $this->Form->postLink('Delete', '/posts/delete/1', array('escape' => false), '\'Confirm\' this "deletion"?');
-		$this->assertTags($result, array(
-			'form' => array(
-				'method' => 'post', 'action' => '/posts/delete/1',
-				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
-			),
-			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
-			'/form',
-			'a' => array('href' => '#', 'onclick' => 'preg:/if \(confirm\(&quot;&#039;Confirm&#039; this \\\\&quot;deletion\\\\&quot;\?&quot;\)\) \{ document\.post_\w+\.submit\(\); \} event\.returnValue = false; return false;/'),
-			'Delete',
-			'/a'
-		));
-
+                $expected = array(
+                    array('form' => array('method' => 'post', 'action' => '/posts/delete/1','name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;')),
+                        array('input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST')),
+                    '/form',
+                    array('a' => array('href' => '#', 'onclick' => 'event.returnValue = false; return false;', 'data-toggle' => 'modal', 'data-target' => 'preg:/#post_\w+-modal/')),
+                        'Delete',
+                    '/a',
+                    array('div' => array('class' => 'modal fade text-left','id' => 'preg:/post_\w+\-modal/','tabindex' => '-1','role' => 'dialog','aria-labelledby' => 'preg:/#post_\w+-label/','aria-hidden' => 'true')),
+                        array('div' => array('class' => 'modal-dialog')),
+                            array('div' => array('class' => 'modal-content')),
+                                array('div' => array('class' => 'modal-header')),
+                                    array('button' => array('type' => 'button','class' => 'close','data-dismiss' => 'modal','aria-hidden' => 'true')),
+                                        '&times;',
+                                    '/button',
+                                    array('h4' => array('class' => 'modal-title','id' => 'preg:/#post_\w+-label/')),
+                                        'Confirmation Dialog',
+                                    '/h4',
+                                '/div',
+                                array('div' => array('class' => 'modal-body')),
+                                    '\'Confirm\' this "deletion"?',
+                                '/div',
+                                array('div' => array('class' => 'modal-footer')),
+                                    array('button' => array('type' => 'button','class' => 'btn btn-default','data-dismiss' => 'modal')),
+                                        'No',
+                                    '/button',
+                                    array('a' => array('href' => '#','class' => 'btn btn-primary','onclick' => 'preg:/document\.post_\w+\.submit\(\)\;/')),
+                                        'Yes',
+                                    '/a',
+                                '/div',
+                            '/div',
+                        '/div',
+                    '/div'
+                );
+                $this->assertTags($result, $expected);
+                
 		$result = $this->Form->postLink('Delete', '/posts/delete', array('data' => array('id' => 1)));
 		$this->assertContains('<input type="hidden" name="data[id]" value="1"/>', $result);
 
 		$result = $this->Form->postLink('Delete', '/posts/delete/1', array('target' => '_blank'));
-		$this->assertTags($result, array(
-			'form' => array(
-				'method' => 'post', 'target' => '_blank', 'action' => '/posts/delete/1',
-				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
-			),
-			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
-			'/form',
-			'a' => array('href' => '#', 'onclick' => 'preg:/document\.post_\w+\.submit\(\); event\.returnValue = false; return false;/'),
-			'Delete',
-			'/a'
-		));
+                $expected = array(
+                    array('form' => array('method' => 'post', 'target' => '_blank', 'action' => '/posts/delete/1','name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;')),
+                        array('input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST')),
+                    '/form',
+                    array('a' => array('href' => '#', 'onclick' => 'preg:/document\.post_\w+\.submit\(\)\; event\.returnValue \= false\; return false\;/')),
+                        'Delete',
+                    '/a',
+                );
+		$this->assertTags($result, $expected);
 
 		$result = $this->Form->postLink(
-			'',
+			'Title',
 			array('controller' => 'items', 'action' => 'delete', 10),
 			array('class' => 'btn btn-danger', 'escape' => false),
-			'Confirm thing'
+			array('text' => 'Confirm thing', 'title' => 'Thing Title')
 		);
-		$this->assertTags($result, array(
-			'form' => array(
-				'method' => 'post', 'action' => '/items/delete/10',
-				'name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;'
-			),
-			'input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST'),
-			'/form',
-			'a' => array('class' => 'btn btn-danger', 'href' => '#', 'onclick' => 'preg:/if \(confirm\(\&quot\;Confirm thing\&quot\;\)\) \{ document\.post_\w+\.submit\(\); \} event\.returnValue = false; return false;/'),
-			'/a'
-		));
+                $expected = array(
+                    array('form' => array('method' => 'post', 'action' => '/items/delete/10','name' => 'preg:/post_\w+/', 'id' => 'preg:/post_\w+/', 'style' => 'display:none;')),
+                        array('input' => array('type' => 'hidden', 'name' => '_method', 'value' => 'POST')),
+                    '/form',
+                    array('a' => array('href' => '#', 'class' => 'btn btn-danger','onclick' => 'event.returnValue = false; return false;', 'data-toggle' => 'modal', 'data-target' => 'preg:/#post_\w+-modal/')),
+                        'Title',
+                    '/a',
+                    array('div' => array('class' => 'modal fade text-left','id' => 'preg:/post_\w+\-modal/','tabindex' => '-1','role' => 'dialog','aria-labelledby' => 'preg:/#post_\w+-label/','aria-hidden' => 'true')),
+                        array('div' => array('class' => 'modal-dialog')),
+                            array('div' => array('class' => 'modal-content')),
+                                array('div' => array('class' => 'modal-header')),
+                                    array('button' => array('type' => 'button','class' => 'close','data-dismiss' => 'modal','aria-hidden' => 'true')),
+                                        '&times;',
+                                    '/button',
+                                    array('h4' => array('class' => 'modal-title','id' => 'preg:/#post_\w+-label/')),
+                                        'Thing Title',
+                                    '/h4',
+                                '/div',
+                                array('div' => array('class' => 'modal-body')),
+                                    'Confirm thing',
+                                '/div',
+                                array('div' => array('class' => 'modal-footer')),
+                                    array('button' => array('type' => 'button','class' => 'btn btn-default','data-dismiss' => 'modal')),
+                                        'No',
+                                    '/button',
+                                    array('a' => array('href' => '#','class' => 'btn btn-primary','onclick' => 'preg:/document\.post_\w+\.submit\(\)\;/')),
+                                        'Yes',
+                                    '/a',
+                                '/div',
+                            '/div',
+                        '/div',
+                    '/div'
+                );
+		$this->assertTags($result, $expected);
 	}
 }

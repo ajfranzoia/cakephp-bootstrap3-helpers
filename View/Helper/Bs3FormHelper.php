@@ -964,9 +964,13 @@ class Bs3FormHelper extends FormHelper {
             $requestMethod = strtoupper($options['method']);
             unset($options['method']);
         }
-        if (!empty($options['confirm'])) {
-            $confirmMessage['text'] = $options['confirm'];
-            unset($options['confirm']);
+        
+        if(is_string($confirmMessage)) {
+            $confirmMessage = array('text' => $confirmMessage);
+        }
+        if (!empty($confirmMessage['confirm'])) {
+            $confirmMessage['text'] = $confirmMessage['confirm'];
+            unset($confirmMessage['confirm']);
         }
 
         $formName = str_replace('.', '', uniqid('post_', true));
@@ -1011,6 +1015,7 @@ class Bs3FormHelper extends FormHelper {
         $onClick = 'document.' . $formName . '.submit();';
         $append = '';
         $options['onclick'] = '';
+        
         if (!empty($confirmMessage['text'])) {
             if (empty($confirmMessage['title']))
                 $confirmMessage['title'] = __('Confirmation Dialog');
