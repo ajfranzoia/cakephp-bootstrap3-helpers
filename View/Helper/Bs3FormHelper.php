@@ -443,8 +443,8 @@ class Bs3FormHelper extends FormHelper {
 
 		// Opcion inline
 		$inline = null;
-		if ($this->_getCustom('inline')) {
-			$inline = $this->_getCustom('inline');
+		if (isset($attributes['inline'])) {
+			$inline = $attributes['inline'];
 			unset($attributes['inline']);
 		}
 
@@ -501,7 +501,11 @@ class Bs3FormHelper extends FormHelper {
 			$labelOpts += array('for' => $tagName);
 
 			if ($inline) {
-				$labelOpts['class'] = 'radio-inline';
+				if(isset($inline['class'])) {
+					$labelOpts['class'] = $inline['class'];
+				} else {
+					$labelOpts['class'] = 'radio-inline';
+				}
 			}
 			$optLabel = $this->label($tagName, $optHtml . ' ' . $optTitle, $labelOpts);
 
