@@ -161,7 +161,8 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'role' => 'form',
 			'custom' => array(
-				'submitDiv' => null
+				'submitDiv' => null,
+				'submitButton' => null,
 			)
 		);
 		$this->assertEquals($result, $expected);
@@ -233,7 +234,8 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'role' => 'form',
 			'custom' => array(
-				'submitDiv' => null
+				'submitDiv' => null,
+				'submitButton' => null,
 			),
 			'class' => 'my-default-class',
 			'data-attribute' => 'my-value'
@@ -276,7 +278,8 @@ class Bs3FormHelperTest extends CakeTestCase {
 		$expected = array(
 			'role' => 'form',
 			'custom' => array(
-				'submitDiv' => null
+				'submitDiv' => null,
+				'submitButton' => null,
 			),
 			'class' => 'my-form-style-class',
 			'data-attribute' => 'my-value'
@@ -408,6 +411,23 @@ class Bs3FormHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testFormEnd() {
+		$this->Form->create('Contact');
+		$result = $this->Form->end();
+		$expected = array(
+			'/form'
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->end('Submit');
+		$expected = array(
+			'div' => array('class' => 'submit'),
+			'input' => array('type' => 'submit', 'value' => 'Submit'),
+			'/div',
+			'/form'
+		);
+		$this->assertTags($result, $expected);
+
 		$this->Form->create('Contact');
 		$result = $this->Form->end('Submit');
 		$expected = array(
@@ -801,6 +821,36 @@ class Bs3FormHelperTest extends CakeTestCase {
 						'/label',
 					'/div',
 				'/fieldset',
+			'/div'
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->input('active', array('label' => false, 'checkboxLabel' => 'My checkbox label', 'class' => 'myClass'));
+		$expected = array(
+			array('div' => array('class' => 'form-group')),
+				array('div' => array('class' => 'checkbox')),
+					'label' => array('for' => 'ContactActive'),
+						array('input' => array('type' => 'hidden', 'name' => 'data[Contact][active]', 'id' => 'ContactActive_', 'value' => 0)),
+						array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][active]', 'value' => 1, 'id' => 'ContactActive', 'class' => 'myClass')),
+						' My checkbox label',
+					'/label',
+				'/div',
+			'/div'
+		);
+		$this->assertTags($result, $expected);
+
+		$this->Form->create('Contact');
+		$result = $this->Form->input('active', array('label' => false, 'checkboxLabel' => 'My checkbox label', 'class' => 'form-control'));
+		$expected = array(
+			array('div' => array('class' => 'form-group')),
+				array('div' => array('class' => 'checkbox')),
+					'label' => array('for' => 'ContactActive'),
+						array('input' => array('type' => 'hidden', 'name' => 'data[Contact][active]', 'id' => 'ContactActive_', 'value' => 0)),
+						array('input' => array('type' => 'checkbox', 'name' => 'data[Contact][active]', 'value' => 1, 'id' => 'ContactActive')),
+						' My checkbox label',
+					'/label',
+				'/div',
 			'/div'
 		);
 		$this->assertTags($result, $expected);

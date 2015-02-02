@@ -52,6 +52,19 @@ class Bs3HtmlHelper extends HtmlHelper {
 		$this->_config = Hash::merge($this->_defaults, $userConfig);
 	}
 
+
+	public function cdnCss() {
+		return $this->css('//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css');
+	}
+
+
+	public function cdnJs() {
+		return $this->js('//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js');
+	}
+
+	public function cdnFontAwesome() {
+		return $this->css('//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css');
+	}
 /**
  * Render a panel heading
  *
@@ -90,7 +103,21 @@ class Bs3HtmlHelper extends HtmlHelper {
 
 		return null;
 	}
-
+        
+/**
+ * Render a panel heading
+ *
+ * @param string $html
+ * @param array $options
+ * @return string
+ */
+        public function panelFooter($html, $options = array()) {
+                $defaults = array('class' => '');
+		$options = array_merge($defaults, $options);
+		$options = $this->addClass($options, 'panel-footer');
+		return $this->tag('div', $html, $options);
+        }
+        
 /**
  * Render a panel heading
  *
@@ -124,13 +151,14 @@ class Bs3HtmlHelper extends HtmlHelper {
  *
  * @param string $headingHtml
  * @param string $bodyHtml
+ * @param string $footerHtml
  * @param array $options
  * @return string
  */
-	public function panel($headingHtml, $bodyHtml = null, $options = array()) {
+	public function panel($headingHtml, $bodyHtml = null, $footerHtml = null, $options = array()) {
 		$defaults = array(
-			'class' => 'panel-default', 'headingOptions' => array(), 'bodyOptions' => array(),
-			'wrapHeading' => true, 'wrapBody' => true
+			'class' => 'panel-default', 'headingOptions' => array(), 'footerOptions' => array(), 'bodyOptions' => array(),
+			'wrapHeading' => true, 'wrapFooter' => true, 'wrapBody' => true
 		);
 		if ($this->_blockRendering) {
 			$options = $bodyHtml;
@@ -140,13 +168,14 @@ class Bs3HtmlHelper extends HtmlHelper {
 
 		if (!$this->_blockRendering) {
 			$heading = $options['wrapHeading'] ? $this->panelHeading($headingHtml, $options['headingOptions']) : $headingHtml;
+                        $footer = $options['wrapFooter'] && $footerHtml ? $this->panelFooter($footerHtml, $options['footerOptions']) : $footerHtml;
 			$body = $options['wrapBody'] ? $this->panelBody($bodyHtml, $options['bodyOptions']) : $bodyHtml;
-			$html = $heading . $body;
+			$html = $heading . $body . $footer;
 		} else {
 			$html = $headingHtml;
 		}
 
-		unset($options['headingOptions'], $options['bodyOptions'], $options['wrapHeading'], $options['wrapBody']);
+		unset($options['headingOptions'], $options['footerOptions'], $options['bodyOptions'], $options['wrapFooter'], $options['wrapHeading'], $options['wrapBody']);
 		return $this->tag('div', $html, $options);
 	}
 
@@ -196,7 +225,7 @@ class Bs3HtmlHelper extends HtmlHelper {
 
 		$blockRendering = $this->_blockRendering;
 		$this->_blockRendering = false;
-		$itemHtml = $this->panel($heading, $body, array('wrapBody' => false));
+		$itemHtml = $this->panel($heading, $body, null, array('wrapBody' => false));
 		$this->_blockRendering = $blockRendering;
 		return $itemHtml;
 	}

@@ -62,7 +62,8 @@ class Bs3FormHelper extends FormHelper {
 	protected $_myFormDefaults = array(
 		'role' => 'form',
 		'custom' => array(
-			'submitDiv' => null
+			'submitDiv' => null,
+			'submitButton' => null
 		)
 	);
 
@@ -170,24 +171,43 @@ class Bs3FormHelper extends FormHelper {
  * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#closing-the-form
  */
 	public function end($options = null, $secureAttributes = array()) {
+		$render = !empty($options);
 		$options = is_string($options) ? array('value' => $options) : $options;
+
+		$out = null;
 
 		if (!empty($this->formOptions['custom']['submitDiv']) && !isset($options['div'])) {
 			$options['div'] = $this->formOptions['custom']['submitDiv'];
 		}
 
-		$out = null;
+		$isButton = (isset($options['button']) && $options['button'] != false) || $this->formOptions['custom']['submitButton'];
+		if ($isButton) {
 
-		if (!empty($options['button'])) {
+			$btnOptions = array();
+			if (isset($options['button']) && is_string($options['button'])) {
+				$btnOptions['class'] = $options['button'];
+			} else {
+				$btnOptions['class'] = $this->formOptions['custom']['submitButton'];
+			}
 
-			$label = isset($options['label']) ? $options['label'] : __d('cake', 'Submit');
+			if (!isset($options['label']) && isset($options['value'])) {
+				$label = $options['value'];
+			} else {
+				$label = isset($options['label']) ? $options['label'] : __d('cake', 'Submit');
+			}
+
 			unset($options['button'], $options['label']);
 
-			$out .= $this->Html->tag('button', $label, $options);
+			$btnOptions = array_merge($options, $btnOptions);
+			$out = $this->Html->tag('button', $label, $btnOptions);
+
+			if (!empty($options['div'])) {
+				$out = $this->Html->tag('div', $out, array('class' => $options['div']));
+			}
 
 		} else {
 			$submit = null;
-			if ($options !== null) {
+			if ($render) {
 				$submitOptions = array();
 				if (is_string($options)) {
 					$submit = $options;
@@ -246,6 +266,10 @@ class Bs3FormHelper extends FormHelper {
  * @return array
  */
 	protected function _initInputOptions($options) {
+		if ($this->formStyle == null && empty($this->inputOptions)) {
+			$this->inputOptions = array();
+		}
+
 		$options = $this->_initLabel($options);
 		$options = Hash::merge($this->inputOptions, $options);
 		$options = $this->currentInputOptions = $this->_processCustomConfig('input', $options);
@@ -272,9 +296,11 @@ class Bs3FormHelper extends FormHelper {
 		if (in_array($type, array('checkbox', 'hidden')) ||
 			($args['type'] == 'select' &&
 				isset($args['options']['multiple']) &&
-				$args['options']['multiple'] == 'checkbox' &&
-				$args['options']['class'] == 'form-control')) {
-			unset($args['options']['class']);
+				$args['options']['multiple'] == 'checkbox')) {
+
+			if ($args['options']['class'] == 'form-control'){
+				unset($args['options']['class']);
+			}
 		}
 
 		// Render input field via parent method
@@ -306,12 +332,12 @@ class Bs3FormHelper extends FormHelper {
 
 		// Help block rendering
 		$html['help'] = null;
-		if ($customOptions['help']) {
+		if (!empty($customOptions['help'])) {
 			$html['help'] = $this->Html->tag('div', $customOptions['help'], array('class' => 'help-block'));
 		}
 
 		// Set size of input if enabled, and get full html of input and block
-		if ($customOptions['wrap']) {
+		if (!empty($customOptions['wrap'])) {
 			if ($customOptions['externalWrap']) {
 				$html['input'] = $this->Html->tag('div', $html['input'], array('class' => $customOptions['wrap']));
 				$html['input'] = $this->Html->tag('div', $html['input'], array('class' => 'row'));
@@ -818,11 +844,11 @@ class Bs3FormHelper extends FormHelper {
 
 		// Process input configuration
 		$this->inputOptions = Hash::merge(
-			$this->_myInputDefaults,
 			Configure::check('Bs3.Form.inputDefaults') ? Configure::read('Bs3.Form.inputDefaults') : array(),
 			$this->_processCustomConfig('input', $styleInputDefaults),
 			$this->_processCustomConfig('input', $this->_extractOption('inputDefaults', $options, array()))
 		);
+		$this->inputOptions = Hash::merge($this->_myInputDefaults, $this->inputOptions);
 
 		// Process form configuration
 		unset($options['inputDefaults']);
@@ -902,6 +928,22 @@ class Bs3FormHelper extends FormHelper {
 		unset($options['formStyle']);
 
 		return $options;
+	}
+
+/**
+ * Overrides parent method to remove undesirable properties when dealing with bare inputs
+ * Unsets 'div', 'label' and 'error' from $params, all of them used in via input()
+ * to prevent them from being rendered as tag attributes
+ *
+ * @param string $method Method name / input type to make.
+ * @param array $params Parameters for the method call
+ * @return string Formatted input method.
+ * @throws CakeException When there are no params for the method call.
+ */
+	public function __call($method, $params) {
+		unset($params[1]['div'], $params[1]['label'], $params[1]['error']);
+
+		return parent::__call($method, $params);
 	}
 }
 
