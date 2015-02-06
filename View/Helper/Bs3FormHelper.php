@@ -294,12 +294,17 @@ class Bs3FormHelper extends FormHelper {
 
 		// TODO: ver esto... Si es de tipo select multiple con checkbox, no setear clase en checkoxes
 		if (in_array($type, array('checkbox', 'hidden')) ||
-			($args['type'] == 'select' &&
+			(
+				$args['type'] == 'select' &&
 				isset($args['options']['multiple']) &&
-				$args['options']['multiple'] == 'checkbox')) {
+				$args['options']['multiple'] == 'checkbox'
+			)
+		) {
 
-			if ($args['options']['class'] == 'form-control'){
-				unset($args['options']['class']);
+			if(isset($args['options']['class'])) {
+				if ($args['options']['class'] == 'form-control'){
+					unset($args['options']['class']);
+				}
 			}
 		}
 
