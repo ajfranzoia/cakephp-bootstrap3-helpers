@@ -818,7 +818,11 @@ class Bs3FormHelper extends FormHelper {
  * @return array
  */
 	public function listFormStyles() {
-		return array_keys(Configure::read('Bs3.Form.styles'));
+		if(Configure::check('Bs3.Form.styles')) {
+			return array_keys(Configure::read('Bs3.Form.styles'));
+		} else {
+			return array();
+		}
 	}
 
 /**
