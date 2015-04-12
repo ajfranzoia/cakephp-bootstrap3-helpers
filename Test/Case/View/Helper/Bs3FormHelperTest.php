@@ -313,6 +313,16 @@ class Bs3FormHelperTest extends CakeTestCase {
 			)
 		);
 		$this->assertEquals($result, $expected);
+
+		// Test configured options missing styles
+		Configure::write('Bs3.Form', array(
+			'formDefaults' => array(),
+			'inputDefaults' => array()
+		));
+
+		$result = $this->Form->listFormStyles();
+		$expected = array();
+		$this->assertEquals($result, $expected);
 	}
 
 /**
