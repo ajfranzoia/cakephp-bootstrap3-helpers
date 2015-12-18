@@ -95,7 +95,7 @@ class Bs3HtmlHelper extends HtmlHelper {
  */
 	public function getIconVendor($class) {
 		foreach ($this->_config['iconVendorPrefixes'] as $iconVendorPrefix) {
-			$regex = sprintf('/^%s-|\s%s-/', $iconVendorPrefix, $iconVendorPrefix);
+            $regex = sprintf('/^(?<!<"\')(%s[\s-]){1,}/', $iconVendorPrefix, $iconVendorPrefix);
 			if (preg_match($regex, $class)) {
 				return $iconVendorPrefix;
 			}
