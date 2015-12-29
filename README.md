@@ -5,7 +5,7 @@ Yet another Cake 2.x form helper, but with minimal coding and highly configurabl
 
 Feel free to make any code/docs contributions or post any issues.
 
-[![Build Status](https://travis-ci.org/Codaxis/cakephp-bootstrap3-helpers.svg?branch=master)](https://travis-ci.org/Codaxis/cakephp-bootstrap3-helpers)
+[![Build Status](https://travis-ci.org/ajfranzoia/cakephp-bootstrap3-helpers.svg?branch=master)](https://travis-ci.org/Codaxis/cakephp-bootstrap3-helpers)
 
 ## Installation
 
