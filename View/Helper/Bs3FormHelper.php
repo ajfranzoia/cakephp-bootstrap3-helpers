@@ -928,6 +928,131 @@ class Bs3FormHelper extends FormHelper {
 
 		return $options;
 	}
+        
+/**
+* Creates an HTML link, but access the URL using the method you specify (defaults to POST).
+* Requires javascript to be enabled in browser.
+*
+* This method creates a `<form>` element. So do not use this method inside an existing form.
+* Instead you should add a submit button using FormHelper::submit()
+*
+* ### Options:
+*
+* - `data` - Array with key/value to pass in input hidden
+* - `method` - Request method to use. Set to 'delete' to simulate HTTP/1.1 DELETE request. Defaults to 'post'.
+* - `confirm` - Can be used instead of $confirmMessage.
+* - `inline` - Whether or not the associated form tag should be output inline.
+*   Set to false to have the form tag appended to the 'postLink' view block.
+*   Defaults to true.
+* - `block` - Choose a custom block to append the form tag to. Using this option
+*   will override the inline option.
+* - Other options are the same of HtmlHelper::link() method.
+* - The option `onclick` will be replaced.
+*
+* @param string $title The content to be wrapped by <a> tags.
+* @param string|array $url Cake-relative URL or array of URL parameters, or external URL (starts with http://)
+* @param array $options Array of HTML attributes.
+* @param array $confirmMessage Options for modal dialog (text and title).
+* @return string An `<a />` element.
+* @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::postLink
+*/
+    public function postLink($title, $url = null, $options = array(), $confirmMessage = array()) {
+        $options = (array) $options + array('inline' => true, 'block' => null);
+        if (!$options['inline'] && empty($options['block'])) {
+            $options['block'] = __FUNCTION__;
+        }
+        unset($options['inline']);
+
+        $requestMethod = 'POST';
+        if (!empty($options['method'])) {
+            $requestMethod = strtoupper($options['method']);
+            unset($options['method']);
+        }
+        
+        if(is_string($confirmMessage)) {
+            $confirmMessage = array('text' => $confirmMessage);
+        }
+        if (!empty($confirmMessage['confirm'])) {
+            $confirmMessage['text'] = $confirmMessage['confirm'];
+            unset($confirmMessage['confirm']);
+        }
+
+        $formName = str_replace('.', '', uniqid('post_', true));
+        $formUrl = $this->url($url);
+        $formOptions = array(
+            'name' => $formName,
+            'id' => $formName,
+            'style' => 'display:none;',
+            'method' => 'post',
+        );
+        if (isset($options['target'])) {
+            $formOptions['target'] = $options['target'];
+            unset($options['target']);
+        }
+
+        $this->_lastAction($url);
+
+        $out = $this->Html->useTag('form', $formUrl, $formOptions);
+        $out .= $this->Html->useTag('hidden', '_method', array(
+            'value' => $requestMethod
+        ));
+        $out .= $this->_csrfField();
+
+        $fields = array();
+        if (isset($options['data']) && is_array($options['data'])) {
+            foreach (Hash::flatten($options['data']) as $key => $value) {
+                $fields[$key] = $value;
+                $out .= $this->hidden($key, array('value' => $value, 'id' => false));
+            }
+            unset($options['data']);
+        }
+        $out .= $this->secure($fields);
+        $out .= $this->Html->useTag('formend');
+
+        if ($options['block']) {
+            $this->_View->append($options['block'], $out);
+            $out = '';
+        }
+        unset($options['block']);
+
+        $url = '#';
+        $onClick = 'document.' . $formName . '.submit();';
+        $append = '';
+        $options['onclick'] = '';
+        
+        if (!empty($confirmMessage['text'])) {
+            if (empty($confirmMessage['title']))
+                $confirmMessage['title'] = __('Confirmation Dialog');
+            $options['data-toggle'] = 'modal';
+            $options['data-target'] = "#$formName-modal";
+            $append .= "<div class=\"modal fade text-left\" id=\"$formName-modal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"#$formName-label\" aria-hidden=\"true\">";
+            $append .= '<div class="modal-dialog">';
+            $append .= '<div class="modal-content">';
+
+            $append .= '<div class="modal-header">';
+            $append .= '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>';
+            $append .= "<h4 class=\"modal-title\" id=\"#$formName-label\">" . $confirmMessage['title'] . "</h4>";
+            $append .= '</div>';
+
+            $append .= '<div class="modal-body">' . $confirmMessage['text'] . '</div>';
+
+            $append .= '<div class="modal-footer">';
+            $append .= '<button type="button" class="btn btn-default" data-dismiss="modal">' . __('No') . '</button>';
+            $append .= $this->Html->link(__('Yes'), '#', array('class' => 'btn btn-primary', 'onclick' => $onClick));
+            $append .= '</div>';
+
+            $append .= '</div>';
+            $append .= '</div>';
+            $append .= '</div>';
+        } else {
+            $options['onclick'] = $onClick . ' ';
+        }
+        $options['onclick'] .= 'event.returnValue = false; return false;';
+
+        $out .= $this->Html->link($title, $url, $options) . $append;
+        return $out;
+    }
+
 
 /**
  * Overrides parent method to remove undesirable properties when dealing with bare inputs
