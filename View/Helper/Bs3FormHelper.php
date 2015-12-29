@@ -294,12 +294,17 @@ class Bs3FormHelper extends FormHelper {
 
 		// TODO: ver esto... Si es de tipo select multiple con checkbox, no setear clase en checkoxes
 		if (in_array($type, array('checkbox', 'hidden')) ||
-			($args['type'] == 'select' &&
+			(
+				$args['type'] == 'select' &&
 				isset($args['options']['multiple']) &&
-				$args['options']['multiple'] == 'checkbox')) {
+				$args['options']['multiple'] == 'checkbox'
+			)
+		) {
 
-			if ($args['options']['class'] == 'form-control'){
-				unset($args['options']['class']);
+			if(isset($args['options']['class'])) {
+				if ($args['options']['class'] == 'form-control'){
+					unset($args['options']['class']);
+				}
 			}
 		}
 
@@ -443,8 +448,8 @@ class Bs3FormHelper extends FormHelper {
 
 		// Opcion inline
 		$inline = null;
-		if ($this->_getCustom('inline')) {
-			$inline = $this->_getCustom('inline');
+		if (isset($attributes['inline'])) {
+			$inline = $attributes['inline'];
 			unset($attributes['inline']);
 		}
 
@@ -501,7 +506,11 @@ class Bs3FormHelper extends FormHelper {
 			$labelOpts += array('for' => $tagName);
 
 			if ($inline) {
-				$labelOpts['class'] = 'radio-inline';
+				if(isset($inline['class'])) {
+					$labelOpts['class'] = $inline['class'];
+				} else {
+					$labelOpts['class'] = 'radio-inline';
+				}
 			}
 			$optLabel = $this->label($tagName, $optHtml . ' ' . $optTitle, $labelOpts);
 
@@ -908,6 +917,11 @@ class Bs3FormHelper extends FormHelper {
  */
 	protected function _detectFormStyle($options) {
 		$this->formStyle = $this->_extractOption('formStyle', $options);
+
+		if(empty($this->formStyle) && NULL !== Configure::read('Bs3.Form.formStyle')) {
+			$this->formStyle = Configure::read('Bs3.Form.formStyle');
+		}
+
 		$class = $this->_extractOption('class', $options);
 
 		if (!$this->formStyle) {
